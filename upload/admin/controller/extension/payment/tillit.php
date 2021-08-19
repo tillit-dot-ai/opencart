@@ -101,6 +101,12 @@ class ControllerExtensionPaymentTillit extends Controller {
 		} else {
 			$data['payment_tillit_api_key'] = $this->config->get('payment_tillit_api_key');
 		}
+
+		if (isset($this->request->post['payment_tillit_logo'])) {
+			$data['payment_tillit_logo'] = $this->request->post['payment_tillit_logo'];
+		} else {
+			$data['payment_tillit_logo'] = $this->config->get('payment_tillit_logo');
+		}
 		
 		if (isset($this->request->post['payment_tillit_choose_product'])) {
 			$data['payment_tillit_choose_product'] = $this->request->post['payment_tillit_choose_product'];
@@ -189,10 +195,35 @@ class ControllerExtensionPaymentTillit extends Controller {
 		} else {
 			$data['payment_tillit_status_order_refunded'] = $this->config->get('payment_tillit_status_order_refunded');
 		}
+	
+	//=============================================================================	
+		if (isset($this->request->post['payment_tillit_total'])) {
+			$data['payment_tillit_total'] = $this->request->post['payment_tillit_total'];
+		} else {
+			$data['payment_tillit_total'] = $this->config->get('payment_tillit_total');
+		}
+
 		
-		
-		
-		
+		if (isset($this->request->post['payment_tillit_order_status_id'])) {
+			$data['payment_tillit_order_status_id'] = $this->request->post['payment_tillit_order_status_id'];
+		} else {
+			$data['payment_tillit_order_status_id'] = $this->config->get('payment_tillit_order_status_id');
+		}
+
+		$this->load->model('localisation/order_status');
+
+		$data['order_statuses'] = $this->model_localisation_order_status->getOrderStatuses();
+
+		if (isset($this->request->post['payment_tillit_geo_zone_id'])) {
+			$data['payment_tillit_geo_zone_id'] = $this->request->post['payment_tillit_geo_zone_id'];
+		} else {
+			$data['payment_tillit_geo_zone_id'] = $this->config->get('payment_tillit_geo_zone_id');
+		}
+
+		$this->load->model('localisation/geo_zone');
+
+		$data['geo_zones'] = $this->model_localisation_geo_zone->getGeoZones();
+	//=============================================================================
 
 /* 
 		if (isset($this->request->post['payment_tillit_canceled_reversal_status_id'])) {
@@ -322,6 +353,10 @@ class ControllerExtensionPaymentTillit extends Controller {
   if (!$this->request->post['payment_tillit_api_key']) {
 			$this->error['payment_api_key'] = $this->language->get('error_api_key');
 		}
+
+	/*if (!$this->request->post['payment_tillit_logo']) {
+			$this->error['payment_logo'] = $this->language->get('error_logo');
+		}*/
 		
   if (!$this->request->post['payment_tillit_invoice_days']) {
 			$this->error['payment_invoice_days'] = $this->language->get('error_invoice_days');
