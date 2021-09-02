@@ -1,27 +1,60 @@
+
 <div class="buttons">
   <div class="pull-right">
     <input type="button" value="{{ button_confirm }}" id="button-confirm" data-loading-text="{{ text_loading }}" class="btn btn-primary" />
   </div>
 </div>
+
 <script type="text/javascript"><!--
 $('#button-confirm').on('click', function() {
+
+	{% if payment_mode == 'production' %}
+		var tillit_api_url = 'https://api.tillit.ai/v1/';
+	{% endif %}
+	{% if payment_mode == 'development' %}
+		var tillit_api_url = 'https://test.api.tillit.ai/v1/';
+	{% endif %}
+	{% if payment_mode == 'staging' %}
+		var tillit_api_url = 'https://staging.api.tillit.ai/v1/';
+	{% endif %}
+	
+	var jsonBody = '{{ jsonBody }}';
+
 	$.ajax({
-		url: 'index.php?route=extension/payment/tillit/confirm',
+		url: tillit_api_url + 'order_intent?client=oc&client_v=0.0.1',
 		dataType: 'json',
-		beforeSend: function() {
-			$('#button-confirm').button('loading');
-		},
-		complete: function() {
-			$('#button-confirm').button('reset');
-		},
+		method: 'POST',
+		headers: { 'Content-Type': 'application/json' },
+		xhrFields: {withCredentials: true},
+		data: jsonBody,
 		success: function(json) {
-			/*if (json['redirect']) {
-				location = json['redirect'];	
-			}*/
+			if (json['approved']==true) {
+				
+				$.ajax({
+					url: 'index.php?route=extension/payment/tillit/confirm',
+					dataType: 'json',
+					beforeSend: function() {
+						$('#button-confirm').button('loading');
+					},
+					complete: function() {
+						$('#button-confirm').button('reset');
+					},
+					success: function(json) {
+						if (json['redirect']) {
+							location = json['redirect'];	
+						}
+					},
+					error: function(xhr, ajaxOptions, thrownError) {
+						alert(thrownError + "\r\n" + xhr.statusText + "\r\n" + xhr.responseText);
+					}
+			});
+				
+			}
 		},
 		error: function(xhr, ajaxOptions, thrownError) {
 			alert(thrownError + "\r\n" + xhr.statusText + "\r\n" + xhr.responseText);
 		}
 	});
+
 });
 //--></script>
