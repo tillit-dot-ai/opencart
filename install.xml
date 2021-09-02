@@ -1,0 +1,181 @@
+<?xml version="1.0" encoding="utf-8"?>
+<modification>
+  <name>Tillit Payment Gateway API</name>
+  <code>neon_builder</code>
+  <version>1.1</version>
+  <author>ravi</author>
+  
+  <file path="catalog/view/theme/default/template/checkout/register.twig">
+    <operation>
+      <search>
+        <![CDATA[<input type="text" name="company" value="" placeholder="{{ entry_company }}" id="input-payment-company"]]>
+      </search>
+      <add position="after">
+        <![CDATA[
+			<i class="help">Please type minimum 3 character</i>
+		]]>
+      </add>
+    </operation>
+	<operation>
+      <search index="1">
+        <![CDATA[<script type="text/javascript">]]>
+      </search>
+      <add position="before">
+        <![CDATA[
+		<script type="text/javascript">
+		let united_kingdom_id = 222;
+		let norway = 160;
+			
+			$('#input-payment-company').on('change', function() {
+				var countrycheck = $('#input-payment-country').val();
+				var comapnyname = $('#input-payment-company').val();
+				
+				if(comapnyname.length>=3){
+					
+					if(countrycheck!=united_kingdom_id && countrycheck!=norway){
+						alert('Please select country Norway or United Kingdom (UK) to search');
+						
+					}else {
+					
+						if(countrycheck==united_kingdom_id){
+							var tillit_search_host_url = 'https://gb.search.tillit.ai/';
+							var tillit_checkout_host = 'https://api.tillit.ai/v1/GB/';
+						}
+						if(countrycheck==norway){
+							var tillit_search_host_url = 'https://no.search.tillit.ai/';
+							var tillit_checkout_host = 'https://api.tillit.ai/v1/NO/';
+						}
+						
+						
+						$('input[name=\'company\']').autocomplete({
+							'source': function(request, response) {
+							  $.ajax({
+								url: tillit_search_host_url+'search?limit=50&offset=0&q=' + encodeURIComponent(comapnyname),
+								dataType: 'json',
+								success: function(json) {
+								  json = json.data.items;
+								  response($.map(json, function(item) {
+									return {
+									  label: item['name'],
+									  value: item['id']
+									}
+								  }));
+								}
+							  });
+							},
+							'select': function(item) {
+							  $('input[name=\'company\']').val(item['label']);
+							  
+							  $.ajax({
+									url: tillit_checkout_host+'company/'+encodeURIComponent(item['value'])+'/address?client=wp&client_v=1.2.11',
+									dataType: 'json',
+									success: function(json) {
+									  var city = json.address.city;
+									  var postalCode = json.address.postalCode;
+									  var streetAddress = json.address.streetAddress;
+									  
+									  $('input[name=\'city\']').val(city);
+									  $('input[name=\'postcode\']').val(postalCode);
+									  $('input[name=\'address_1\']').val(streetAddress);
+									  
+									}
+								  });
+							}
+						  });
+					}
+				}
+			});
+			//-
+		</script>
+		]]>
+      </add>
+    </operation>
+  </file>
+  
+  <file path="catalog/view/theme/default/template/checkout/guest.twig">
+    <operation>
+      <search>
+        <![CDATA[<input type="text" name="company" value="{{ company }}" placeholder="{{ entry_company }}" id="input-payment-company"]]>
+      </search>
+      <add position="after">
+        <![CDATA[
+			<i class="help">Please type minimum 3 character</i>
+		]]>
+      </add>
+    </operation>
+	<operation>
+      <search index="1">
+        <![CDATA[<script type="text/javascript">]]>
+      </search>
+      <add position="before">
+        <![CDATA[
+		<script type="text/javascript">
+		let united_kingdom_id = 222;
+		let norway = 160;
+			
+			$('#input-payment-company').on('change', function() {
+				var countrycheck = $('#input-payment-country').val();
+				var comapnyname = $('#input-payment-company').val();
+				
+				if(comapnyname.length>=3){
+					
+					if(countrycheck!=united_kingdom_id && countrycheck!=norway){
+						alert('Please select country Norway or United Kingdom (UK) to search');
+						
+					}else {
+					
+						if(countrycheck==united_kingdom_id){
+							var tillit_search_host_url = 'https://gb.search.tillit.ai/';
+							var tillit_checkout_host = 'https://api.tillit.ai/v1/GB/';
+						}
+						if(countrycheck==norway){
+							var tillit_search_host_url = 'https://no.search.tillit.ai/';
+							var tillit_checkout_host = 'https://api.tillit.ai/v1/NO/';
+						}
+						
+						
+						$('input[name=\'company\']').autocomplete({
+							'source': function(request, response) {
+							  $.ajax({
+								url: tillit_search_host_url+'search?limit=50&offset=0&q=' + encodeURIComponent(comapnyname),
+								dataType: 'json',
+								success: function(json) {
+								  json = json.data.items;
+								  response($.map(json, function(item) {
+									return {
+									  label: item['name'],
+									  value: item['id']
+									}
+								  }));
+								}
+							  });
+							},
+							'select': function(item) {
+							  $('input[name=\'company\']').val(item['label']);
+							  
+							  $.ajax({
+									url: tillit_checkout_host+'company/'+encodeURIComponent(item['value'])+'/address?client=wp&client_v=1.2.11',
+									dataType: 'json',
+									success: function(json) {
+									  var city = json.address.city;
+									  var postalCode = json.address.postalCode;
+									  var streetAddress = json.address.streetAddress;
+									  
+									  $('input[name=\'city\']').val(city);
+									  $('input[name=\'postcode\']').val(postalCode);
+									  $('input[name=\'address_1\']').val(streetAddress);
+									  
+									}
+								  });
+							}
+						  });
+					}
+				}
+			});
+			//-
+		</script>
+		]]>
+      </add>
+    </operation>
+  </file>
+</modification>
