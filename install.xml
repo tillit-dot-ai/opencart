@@ -5,6 +5,19 @@
   <version>1.1</version>
   <author>ravi</author>
   
+  <file path="catalog/controller/checkout/register.php">
+    <operation>
+      <search>
+        <![CDATA[$json['error']['telephone'] = $this->language->get('error_telephone');]]>
+      </search>
+      <add offset="2" position="replace">
+        <![CDATA[$json['error']['telephone'] = $this->language->get('error_telephone');
+			} else if(strpos($this->request->post['telephone'], '47') != true){
+				$json['error']['telephone'] = 'Please use phone format +47 99999999';
+		]]>
+      </add>
+    </operation>
+  </file>   
   <file path="catalog/view/theme/default/template/checkout/register.twig">
     <operation>
       <search>
@@ -26,7 +39,7 @@
 		let united_kingdom_id = 222;
 		let norway = 160;
 			
-			$('#input-payment-company').on('change', function() {
+			$('#input-payment-company').on('keyup', function() {
 				var countrycheck = $('#input-payment-country').val();
 				var comapnyname = $('#input-payment-company').val();
 				
@@ -113,7 +126,7 @@
 		let united_kingdom_id = 222;
 		let norway = 160;
 			
-			$('#input-payment-company').on('change', function() {
+			$('#input-payment-company').on('keyup', function() {
 				var countrycheck = $('#input-payment-country').val();
 				var comapnyname = $('#input-payment-company').val();
 				
@@ -174,6 +187,169 @@
 			});
 			//-
 		</script>
+		]]>
+      </add>
+    </operation>
+  </file>
+  
+  <file path="catalog/controller/checkout/payment_method.php">
+    <operation>
+      <search>
+        <![CDATA[public function save() {]]>
+      </search>
+      <add position="before">
+        <![CDATA[
+			public function setorder_intent() {		
+				if($this->request->get['order_intent_id']) {
+				   $this->session->data['tillit_order_intent'] = $this->request->get['order_intent_id'];
+				}  
+				
+			}
+		]]>
+      </add>
+    </operation>
+	<operation>
+      <search>
+        <![CDATA[if (isset($this->session->data['payment_method']['code'])) {]]>
+      </search>
+      <add position="before">
+        <![CDATA[
+			// Code by Tillit extension start
+			
+			$data['merchant_key'] =  $this->config->get('payment_tillit_merchant_id');
+		   $data['api_key'] =  $this->config->get('payment_tillit_api_key');
+		   $data['gross_amount'] =  '0.00';
+		   $data['company_name'] = $this->session->data['payment_address']['company'];
+		   $data['country_prefix'] =  $this->session->data['payment_address']['iso_code_2'];
+		   $data['organization_number'] =  '';
+		   $data['first_name'] =  $this->session->data['payment_address']['firstname'];
+		   $data['last_name'] =  $this->session->data['payment_address']['lastname'];
+		   $data['email'] =  $this->customer->getEmail();
+		   $data['phone_number'] =  $this->customer->getTelephone();
+		   $data['currency'] =  '';
+		   $data['merchant_id'] =  $this->config->get('payment_tillit_merchant_id');
+		   $data['gross_amount'] =  $this->cart->getTotal();
+
+		   
+		   $data['api_key'] =  $this->config->get('payment_tillit_api_key');
+		   $data['choose_product'] =  $this->config->get('payment_tillit_choose_product');
+		   $data['invoice_days'] =  $this->config->get('payment_tillit_invoice_days');
+		   $data['payment_mode'] =  $this->config->get('payment_tillit_payment_mode');
+		   $data['company_name'] =  $this->config->get('payment_tillit_company_name');
+		   $data['company_org'] =  $this->config->get('payment_tillit_company_org');
+		   $data['pre_approve_checkout'] =  $this->config->get('payment_tillit_pre_approve_checkout');
+		   $data['initiate_payment_refund'] =  $this->config->get('payment_tillit_initiate_payment_refund');
+		   $data['status_order_unverify'] =  $this->config->get('payment_tillit_status_order_unverify');
+		   $data['status_order_verify'] =  $this->config->get('payment_tillit_status_order_verify');
+		   $data['status_order_shipped'] =  $this->config->get('payment_tillit_status_order_shipped');
+		   $data['status_order_delivered'] =  $this->config->get('payment_tillit_status_order_delivered');
+		   $data['status_order_canceled'] =  $this->config->get('payment_tillit_status_order_canceled');
+		   $data['status_order_refunded'] =  $this->config->get('payment_tillit_status_order_refunded');
+		   $data['total'] =  $this->config->get('payment_tillit_total');
+		   $data['order_status_id'] =  $this->config->get('payment_tillit_order_status_id');
+		   $data['geo_zone_id'] =  $this->config->get('payment_tillit_geo_zone_id');
+		   $data['status'] =  $this->config->get('payment_tillit_status');
+		   $data['sort_order'] =  $this->config->get('payment_tillit_sort_order');
+		   
+		   $data['error_telephone'] = '';
+		   
+		   $this->session->data['tillit_order_intent'] = '123';
+		   
+		   // Tillit Validation
+		   
+		   if(!empty($this->session->data['guest']['telephone'])) {		 
+				if ((utf8_strlen($this->session->data['guest']['telephone']) < 3) || (utf8_strlen($this->session->data['guest']['telephone']) > 32)) {
+					$data['error_telephone'] = 'Please use phone format +47 99999999';
+				} else if(strpos($this->session->data['guest']['telephone'], '47') != true){
+					$data['error_telephone'] = 'Please use phone format +47 99999999';
+				} 
+		   } else {
+				if ((utf8_strlen($data['phone_number']) < 3) || (utf8_strlen($data['phone_number']) > 32)) {
+					$data['error_telephone'] = 'Please use phone format +47 99999999';
+				} else if(strpos($data['phone_number'], '47') != true){
+					$data['error_telephone'] = 'Please use phone format +47 99999999';
+				}
+		   }
+		   
+		   // Code by Tillit extension end
+		]]>
+      </add>
+    </operation>
+  </file>
+  
+  <file path="catalog/view/theme/default/template/checkout/payment_method.twig">
+    <operation>
+      <search>
+        <![CDATA[{% if text_agree %}]]>
+      </search>
+      <add position="before">
+        <![CDATA[
+			<script>
+				$('input[type=radio][name=payment_method]').change(function() {
+					if (this.value == 'tillit') {
+					
+						$('#button-payment-method').prop("disabled", true);
+
+						// Validation of Tillit start
+						{% if merchant_key == '' %}
+							alert('Tillit Merchant Short Name seems empty. Please contact Support!!!');
+							return;
+						{% endif %}
+						
+						{% if error_telephone != '' %}
+							alert('{{ error_telephone }}');
+							return;
+						{% endif %}
+						
+						// Validation of Tillit end
+
+						{% if payment_mode == 'production' %}
+							var tillit_api_url = 'https://api.tillit.ai/v1/';
+						{% endif %}
+						{% if payment_mode == 'development' %}
+							var tillit_api_url = 'https://test.api.tillit.ai/v1/';
+						{% endif %}
+						{% if payment_mode == 'staging' %}
+							var tillit_api_url = 'https://staging.api.tillit.ai/v1/';
+						{% endif %}
+						
+						var jsonBody = '{"merchant_short_name":"{{ merchant_key }}","gross_amount":"{{ gross_amount }}", "buyer":{"company":{"company_name":"{{ company_name }}", "country_prefix":"{{ country_prefix }}","organization_number":"919501847"},"representative":{"email":"{{ email }}","first_name":"{{ first_name }}","last_name":"{{ last_name }}","phone_number":"{{ phone_number }}"}},"currency":"NOK","merchant_id":"{{ merchant_key }}","line_items":[{"name":"Cart","description":"","gross_amount":"{{ gross_amount }}","net_amount":"{{ gross_amount }}","discount_amount":"0","tax_amount":"0.00","tax_class_name":"VAT 0.00%","tax_rate":"0.000000","unit_price":"{{ gross_amount }}","quantity":1,"quantity_unit":"item", "image_url":"","product_page_url":"","type":"PHYSICAL","details":{"categories":[],"barcodes":[]}}]}';
+
+						$.ajax({
+							url: tillit_api_url + 'order_intent?client=oc&client_v=0.0.1',
+							dataType: 'json',
+							method: 'POST',
+							headers: { 'Content-Type': 'application/json; charset=utf-8', 'Accept-Language' : 'en_US','X-API-Key' : '{{api_key}}' },
+							xhrFields: {withCredentials: true},
+							data: jsonBody,
+							success: function(json) {
+								console.log(json);
+								if (json['approved']==true) {  				
+									var order_intent_id = json['id'];
+									var tracking_id = json['tracking_id'];
+									
+									if(order_intent_id){
+										$('#button-payment-method').prop("disabled", false);
+									}else {
+										$('#button-payment-method').prop("disabled", true);
+									}
+									$.ajax({
+										url:'index.php?route=checkout/payment_method/setorder_intent&order_intent_id='+order_intent_id,
+										dataType: 'GET',
+										success: function(json) {
+										
+										}
+									});
+								}					
+							},
+							error: function(xhr, ajaxOptions, thrownError) {
+								alert(thrownError + "\r\n" + xhr.statusText + "\r\n" + xhr.responseText);
+							}
+						});
+					}
+					$('#button-payment-method').prop("disabled", false);
+				});
+			</script>
 		]]>
       </add>
     </operation>
