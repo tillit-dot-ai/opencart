@@ -6,14 +6,14 @@ $_['heading_title']					 = 'Tillit Payment';
 $_['text_extension']				 = 'Extensions';
 $_['text_success']					 = 'Success: You have modified Tillit Payment details!';
 $_['text_edit']                      = 'Edit Tillit Payment';
-$_['text_tillit_standard']				 = '<a target="_BLANK" href="https://tillit.ai/"><img src="view/image/payment/tillit.png" alt="Tillit Payment" title="Tillit Payment" style="border: 1px solid #EEEEEE;" /></a>';
+$_['text_tillit']				     = '<a target="_BLANK" href="https://tillit.ai/"><img src="view/image/payment/tillit.png" alt="Tillit Payment" title="Tillit Payment" style="border: 1px solid #EEEEEE;" /></a>';
 $_['text_authorization']			 = 'Authorization';
 $_['text_sale']						 = 'Sale'; 
 
 // Entry
 $_['entry_title']					 = 'Title';
 $_['entry_sub_title']				 = 'Sub Title';
-$_['entry_merchant_id']				 = 'Merchant ID';
+$_['entry_merchant_id']				 = 'Merchant Short Name';
 $_['entry_api_key']				     = 'API Key';
 $_['entry_logo']				     = 'Logo';
 $_['entry_choose_product']			 = 'Choose your product';
@@ -59,6 +59,7 @@ $_['entry_reversed_status']			 = 'Reversed Status';
 $_['entry_voided_status']			 = 'Voided Status';
 $_['entry_geo_zone']				 = 'Geo Zone';
 $_['entry_status']					 = 'Status';
+$_['entry_order_status']		     = 'Order Status';
 $_['entry_sort_order']				 = 'Sort Order';
 
 // Tab
@@ -70,7 +71,7 @@ $_['tab_order_status']       		 = 'Order Status Settings';
 
 $_['help_title_tag']			     = 'Enter a title which is appear on checkout page as payment method title';
 $_['help_subtitle_tag']			     = 'Enter a subititle which is appear on checkout page as payment method sub title';
-$_['help_merchantid_tag']			 = 'Enter your merchant id which is provided by tillit';
+$_['help_merchantid_tag']			 = 'Enter your merchant short name which is provided by tillit';
 $_['help_apikey_tag']			     = 'Enter your API key which is provided by tillit';
 $_['help_logo_tag']			         = 'Upload your merchant logo';
 $_['help_product_tag']			     = 'Choose your product funded invoice, merchant invoice and administered invoice depend on tillit account';
