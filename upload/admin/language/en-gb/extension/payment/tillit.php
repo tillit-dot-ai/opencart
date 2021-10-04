@@ -19,7 +19,7 @@ $_['entry_logo']				     = 'Logo';
 $_['entry_choose_product']			 = 'Choose your product';
 $_['entry_invoice_days']			 = 'Number of days on invoice';
 $_['entry_funded_invoice']			 = 'Funded Invoice';
-$_['entry_merchant_invoice']		 = 'Merchant Invoice';
+$_['entry_direct_invoice']		 	= 'Direct Invoice';
 $_['entry_administered_invoice']	 = 'Administered Invoice';
 $_['entry_test']					 = 'Sandbox Mode';
 $_['entry_transaction']				 = 'Transaction Method';
@@ -40,32 +40,23 @@ $_['entry_purchased_order_shipped'] 			 = 'Finalize purchase when order is shipp
 $_['entry_pre_approve_checkout'] 			 = 'Pre-approve the buyer during checkout and disable tillit if the buyer is declined';
 
 $_['entry_initiate_payment_refund'] = 'Initiate payment to buyer on refund';
-$_['entry_status_order_unverify'] = 'Order status when order is unverify';
-$_['entry_status_order_verify'] = 'Order status when order is verify';
-$_['entry_status_order_shipped'] = 'Order status when order is shipped';
-$_['entry_status_order_delivered'] = 'Order status when order is delivered';
-$_['entry_status_order_canceled'] = 'Order status when order is canceled';
-$_['entry_status_order_refunded'] = 'Order status when order is refunded';
+$_['entry_verify_order_status'] = 'Verify Order Status';
+$_['entry_unverify_order_status'] = 'Unverify Order Status';
+$_['entry_failed_order_status'] = 'Failed Order Status';
+$_['entry_canceled_order_status'] = 'Canceled Order Status';
+$_['entry_refunded_order_status'] = 'Refunded Order Status';
+$_['entry_shipped_order_status'] = 'Shipped Order Status';
+$_['entry_delivered_order_status'] = 'Delivered Order Status';
 
-$_['entry_canceled_reversal_status'] = 'Canceled Reversal Status';
-$_['entry_completed_status']		 = 'Completed Status';
-$_['entry_denied_status']			 = 'Denied Status';
-$_['entry_expired_status']			 = 'Expired Status';
-$_['entry_failed_status']			 = 'Failed Status';
-$_['entry_pending_status']			 = 'Pending Status';
-$_['entry_processed_status']		 = 'Processed Status';
-$_['entry_refunded_status']			 = 'Refunded Status';
-$_['entry_reversed_status']			 = 'Reversed Status';
-$_['entry_voided_status']			 = 'Voided Status';
 $_['entry_geo_zone']				 = 'Geo Zone';
 $_['entry_status']					 = 'Status';
 $_['entry_order_status']		     = 'Order Status';
 $_['entry_sort_order']				 = 'Sort Order';
 
 // Tab
-$_['tab_general']					 = 'General Settings';
-$_['tab_other']       		 		 = 'Other Settings';
-$_['tab_order_status']       		 = 'Order Status Settings';
+$_['tab_general']					 = 'General';
+$_['tab_other']       		 		 = 'Other';
+$_['tab_order_status']       		 = 'Order Status';
 
 // Help
 

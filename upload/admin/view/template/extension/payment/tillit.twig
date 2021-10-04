@@ -41,7 +41,7 @@
                   {% endif %}
                 </div>
               </div>
-			  <div class="form-group required">
+			       <div class="form-group required">
                 <label class="col-sm-2 control-label" for="entry-sub-title"><span data-toggle="tooltip" title="{{ help_subtitle_tag }}">{{ entry_sub_title }}</span></label>
                 <div class="col-sm-10">
                   <input type="text" name="payment_tillit_sub_title" value="{{ payment_tillit_sub_title }}" placeholder="{{ entry_sub_title }}" id="entry-sub-title" class="form-control"/>
@@ -50,7 +50,7 @@
                   {% endif %}
                 </div>
               </div>
-			  <div class="form-group required">
+			        <div class="form-group required">
                 <label class="col-sm-2 control-label" for="entry-merchant-id"><span data-toggle="tooltip" title="{{ help_merchantid_tag }}">{{ entry_merchant_id }}</span></label>
                 <div class="col-sm-10">
                   <input type="text" name="payment_tillit_merchant_id" value="{{ payment_tillit_merchant_id }}" placeholder="{{ entry_merchant_id }}" id="entry-merchant-id" class="form-control"/>
@@ -59,71 +59,73 @@
                   {% endif %}
                 </div>
               </div>
-			  <div class="form-group required">
+			        <div class="form-group required">
                 <label class="col-sm-2 control-label" for="entry-api-key"><span data-toggle="tooltip" title="{{ help_apikey_tag }}">{{ entry_api_key }}</span></label>
                 <div class="col-sm-10">
-                  <input type="text" name="payment_tillit_api_key" value="{{ payment_tillit_api_key }}" placeholder="{{ entry_api_key }}" id="entry-api-key" class="form-control"/>
+                  <input type="password" name="payment_tillit_api_key" value="{{ payment_tillit_api_key }}" placeholder="{{ entry_api_key }}" id="entry-api-key" class="form-control"/>
                   {% if error_api_key %}
                   <div class="text-danger">{{ error_api_key }}</div>
                   {% endif %}
                 </div>
               </div>			  
-			  
-			  <div class="form-group required">
+			        <div class="form-group required">
                 <label class="col-sm-2 control-label" for="entry-choose-product"><span data-toggle="tooltip" title="{{ help_product_tag }}">{{ entry_choose_product }}</span></label>
                 <div class="col-sm-10">
                   <select name="payment_tillit_choose_product" id="input-canceled-reversal-status" class="form-control">
-                  {% if payment_tillit_choose_product == 'funded_invoice' %}
-				   <option value="{{ funded_invoice }} selected="selected">{{ entry_funded_invoice }}</option>
-				   {% else %}
-				   <option value="{{ funded_invoice }}">{{ entry_funded_invoice }}</option>
-				  {% endif %}
-				  
-				  {% if payment_tillit_choose_product == 'merchant_invoice' %}
-					<option value="{{ merchant_invoice }}" selected="selected">{{ entry_merchant_invoice }}</option>
-				  {% else %}	
-					<option value="{{ merchant_invoice }}">{{ entry_merchant_invoice }}</option>
-				  {% endif %}
-				  
-				  {% if payment_tillit_choose_product == 'administered_invoice' %}
-					<option value="{{ administered_invoice }}" selected="selected">{{ entry_administered_invoice }}</option>
-				  {% else %}	
-					<option value="{{ administered_invoice }}">{{ entry_administered_invoice }}</option>
-				  {% endif %}
+                  {% if payment_tillit_choose_product == 'FUNDED_INVOICE' %}
+        				  <option value="FUNDED_INVOICE" selected="selected">{{ entry_funded_invoice }}</option>
+        				  {% else %}
+        				  <option value="FUNDED_INVOICE">{{ entry_funded_invoice }}</option>
+        				  {% endif %}
+        				  {% if payment_tillit_choose_product == 'DIRECT_INVOICE' %}
+        					<option value="DIRECT_INVOICE" selected="selected">{{ entry_direct_invoice }}</option>
+        				  {% else %}	
+        					<option value="DIRECT_INVOICE">{{ entry_direct_invoice }}</option>
+        				  {% endif %}
                   </select> 
                 </div>
               </div>
-			  
-			  
-			  <div class="form-group required">
+			        <div class="form-group required">
                 <label class="col-sm-2 control-label" for="entry-invoice-days"><span data-toggle="tooltip" title="{{ help_invoice_tag }}">{{ entry_invoice_days }}</span></label>
                 <div class="col-sm-10">
-				  <input type="text" name="payment_tillit_invoice_days" value="{{ payment_tillit_invoice_days }}" placeholder="{{ entry_invoice_days }}" id="entry-api-key" class="form-control"/>
-                 
+				          <input type="text" name="payment_tillit_invoice_days" value="{{ payment_tillit_invoice_days }}" placeholder="{{ entry_invoice_days }}" id="entry-api-key" class="form-control"/>
                 </div>
               </div>
-			  <div class="form-group">
-				<label class="col-sm-2 control-label" for="input-total"><span data-toggle="tooltip" title="{{ help_total }}">{{ entry_total }}</span></label>
-				<div class="col-sm-10">
-				  <input type="text" name="payment_tillit_total" value="{{ payment_tillit_total }}" placeholder="{{ entry_total }}" id="input-total" class="form-control" />
-				</div>
-			  </div>
-			  <div class="form-group">
-				<label class="col-sm-2 control-label" for="input-geo-zone">{{ entry_geo_zone }}</label>
-				<div class="col-sm-10">
-				  <select name="payment_tillit_geo_zone_id" id="input-geo-zone" class="form-control">
-					<option value="0">{{ text_all_zones }}</option>
-					{% for geo_zone in geo_zones %}
-					{% if geo_zone.geo_zone_id == payment_tillit_geo_zone_id %}
-					<option value="{{ geo_zone.geo_zone_id }}" selected="selected">{{ geo_zone.name }}</option>
-					{% else %}
-					<option value="{{ geo_zone.geo_zone_id }}">{{ geo_zone.name }}</option>
-					{% endif %}
-					{% endfor %}
-				  </select>
-				</div>
-			  </div>
-              
+			        <div class="form-group">
+				        <label class="col-sm-2 control-label" for="input-total"><span data-toggle="tooltip" title="{{ help_total }}">{{ entry_total }}</span></label>
+        				<div class="col-sm-10">
+        				  <input type="text" name="payment_tillit_total" value="{{ payment_tillit_total }}" placeholder="{{ entry_total }}" id="input-total" class="form-control" />
+        				</div>
+			        </div>
+      			  <div class="form-group">
+        				<label class="col-sm-2 control-label" for="input-geo-zone">{{ entry_geo_zone }}</label>
+        				<div class="col-sm-10">
+        				  <select name="payment_tillit_geo_zone_id" id="input-geo-zone" class="form-control">
+        					<option value="0">{{ text_all_zones }}</option>
+        					{% for geo_zone in geo_zones %}
+        					{% if geo_zone.geo_zone_id == payment_tillit_geo_zone_id %}
+        					<option value="{{ geo_zone.geo_zone_id }}" selected="selected">{{ geo_zone.name }}</option>
+        					{% else %}
+        					<option value="{{ geo_zone.geo_zone_id }}">{{ geo_zone.name }}</option>
+        					{% endif %}
+        					{% endfor %}
+        				  </select>
+        				</div>
+      			  </div>
+              <div class="form-group">
+                <label class="col-sm-2 control-label" for="input-debug">{{ entry_debug }}</label>
+                <div class="col-sm-10">
+                  <select name="payment_tillit_debug" id="input-debug" class="form-control">
+                    {% if payment_tillit_debug %}
+                    <option value="1" selected="selected">{{ text_enabled }}</option>
+                    <option value="0">{{ text_disabled }}</option>
+                    {% else %}
+                    <option value="1">{{ text_enabled }}</option>
+                    <option value="0" selected="selected">{{ text_disabled }}</option>
+                    {% endif %}
+                  </select>
+                </div>
+              </div>
               <div class="form-group">
                 <label class="col-sm-2 control-label" for="input-status">{{ entry_status }}</label>
                 <div class="col-sm-10">
@@ -151,52 +153,48 @@
                 <div class="col-sm-10">
                   <select name="payment_tillit_payment_mode" id="input-canceled-reversal-status" class="form-control">		  
                   {% if payment_tillit_payment_mode == 'production' %}
-				   <option value="production" selected="selected">{{ entry_payment_production }}</option>
-					<option value="staging">{{ entry_payment_staging }}</option>
-					<option value="development">{{ entry_payment_development }}</option>
-					
-					{% elseif payment_tillit_payment_mode == 'development' %}
-					 <option value="production">{{ entry_payment_production }}</option>
-					<option value="development" selected="selected">{{ entry_payment_development }}</option>
-					<option value="staging">{{ entry_payment_staging }}</option>
-					
-					{% else %}
-					 <option value="production">{{ entry_payment_production }}</option>
-					<option value="development">{{ entry_payment_development }}</option>
-					<option value="staging" selected="selected">{{ entry_payment_staging }}</option>
-					{% endif %}
+        				  <option value="production" selected="selected">{{ entry_payment_production }}</option>
+        					<option value="staging">{{ entry_payment_staging }}</option>
+        					<option value="development">{{ entry_payment_development }}</option>
+        					
+        					{% elseif payment_tillit_payment_mode == 'development' %}
+        					 <option value="production">{{ entry_payment_production }}</option>
+        					<option value="development" selected="selected">{{ entry_payment_development }}</option>
+        					<option value="staging">{{ entry_payment_staging }}</option>
+        					
+        					{% else %}
+        					 <option value="production">{{ entry_payment_production }}</option>
+        					<option value="development">{{ entry_payment_development }}</option>
+        					<option value="staging" selected="selected">{{ entry_payment_staging }}</option>
+        					{% endif %}
                   </select> 
-				 
                 </div>
               </div>
-			  
               <div class="form-group required">
                 <label class="col-sm-2 control-label" for="input-completed-status"><span data-toggle="tooltip" title="{{ help_autocomplete_tag }}">{{ entry_company_name_auto_complete }}</span></label>
                 <div class="col-sm-10">
                   <select name="payment_tillit_company_name" id="input-completed-status" class="form-control">
-				  {% if payment_tillit_company_name == '0'%}	  
-				   <option value="1">{{ entry_yes }}</option>
-				   <option value="0" selected="selected">{{ entry_no }}</option>
-                  {% else %}				   
-                   <option value="1" selected="selected">{{ entry_yes }}</option>
-				   <option value="0">{{ entry_no }}</option>               
-				  {% endif %}
+          				  {% if payment_tillit_company_name == '0'%}	  
+          				  <option value="1">{{ entry_yes }}</option>
+          				  <option value="0" selected="selected">{{ entry_no }}</option>
+                    {% else %}				   
+                    <option value="1" selected="selected">{{ entry_yes }}</option>
+          				  <option value="0">{{ entry_no }}</option>               
+          				  {% endif %}
                   </select>
                 </div>
               </div>
-			  
-			  
-			   <div class="form-group required">
+			        <div class="form-group required">
                 <label class="col-sm-2 control-label" for="input-completed-status"><span data-toggle="tooltip" title="{{ help_orgcomplete_tag }}">{{ entry_company_name_org_complete }}</span></label>
                 <div class="col-sm-10">
                   <select name="payment_tillit_company_org" id="input-completed-status" class="form-control">
-				  {% if payment_tillit_company_org == '0'%}
+				          {% if payment_tillit_company_org == '0'%}
                    <option value="1">{{ entry_yes }}</option>
-				   <option value="0" selected="selected">{{ entry_no }}</option>
+				           <option value="0" selected="selected">{{ entry_no }}</option>
                   {% else %}				   
                    <option value="1" selected="selected">{{ entry_yes }}</option>
-				   <option value="0">{{ entry_no }}</option>
-				  {% endif %}
+				            <option value="0">{{ entry_no }}</option>
+				          {% endif %}
                   </select>
                 </div>
               </div>
@@ -205,150 +203,142 @@
                 <label class="col-sm-2 control-label" for="input-completed-status"><span data-toggle="tooltip" title="{{ help_purchasedorder_tag }}">{{ entry_purchased_order_shipped }}</span></label>
                 <div class="col-sm-10">
                   <select name="payment_tillit_purchased_order_shipped" id="input-completed-status" class="form-control">
-				  {% if payment_tillit_purchased_order_shipped == '0'%}
-                   <option value="1">{{ entry_yes }}</option>
-				   <option value="0" selected="selected">{{ entry_no }}</option>
-                  {% else %}				   
+				            {% if payment_tillit_purchased_order_shipped == '0'%}
+                    <option value="1">{{ entry_yes }}</option>
+				            <option value="0" selected="selected">{{ entry_no }}</option>
+                    {% else %}				   
                    <option value="1" selected="selected">{{ entry_yes }}</option>
-				   <option value="0">{{ entry_no }}</option>
-				  {% endif %}
+          				   <option value="0">{{ entry_no }}</option>
+          				  {% endif %}
                   </select>
                 </div>
               </div>
 			  
-			  <div class="form-group required">
+			        <div class="form-group required">
                 <label class="col-sm-2 control-label" for="input-completed-status"><span data-toggle="tooltip" title="{{ help_checkout_tag }}">{{ entry_pre_approve_checkout }}</span></label>
                 <div class="col-sm-10">
                   <select name="payment_tillit_pre_approve_checkout" id="input-completed-status" class="form-control">
-				  {% if payment_tillit_pre_approve_checkout == '0'%}
-                   <option value="1">{{ entry_yes }}</option>
-				   <option value="0" selected="selected">{{ entry_no }}</option>
-                  {% else %}				   
+        				  {% if payment_tillit_pre_approve_checkout == '0'%}
+                    <option value="1">{{ entry_yes }}</option>
+        				   <option value="0" selected="selected">{{ entry_no }}</option>
+                   {% else %}				   
                    <option value="1" selected="selected">{{ entry_yes }}</option>
-				   <option value="0">{{ entry_no }}</option>
-				  {% endif %}
+        				   <option value="0">{{ entry_no }}</option>
+        				  {% endif %}
                   </select>
                 </div>
               </div>
-			  
-			  
-			   <div class="form-group required">
+              <div class="form-group required">
                 <label class="col-sm-2 control-label" for="input-completed-status"><span data-toggle="tooltip" title="{{ help_paymentrefund_tag }}">{{ entry_initiate_payment_refund }}</span></label>
                 <div class="col-sm-10">
                   <select name="payment_tillit_initiate_payment_refund" id="input-completed-status" class="form-control">
-				  {% if payment_tillit_initiate_payment_refund == '0'%}
+				          {% if payment_tillit_initiate_payment_refund == '0'%}
                    <option value="1">{{ entry_yes }}</option>
-				   <option value="0" selected="selected">{{ entry_no }}</option>
+				            <option value="0" selected="selected">{{ entry_no }}</option>
                   {% else %}				   
                    <option value="1" selected="selected">{{ entry_yes }}</option>
-				   <option value="0">{{ entry_no }}</option>
-				  {% endif %}
+                  <option value="0">{{ entry_no }}</option>
+                  {% endif %}
                   </select>
                 </div>
               </div>	  
-            </div>
-			<div class="tab-pane" id="tab-status">
-			  <div class="form-group">
-				<label class="col-sm-2 control-label" for="input-order-status">{{ entry_order_status }}</label>
-				<div class="col-sm-10">
-				  <select name="payment_tillit_order_status_id" id="input-order-status" class="form-control">
-					{% for order_status in order_statuses %}
-					{% if order_status.order_status_id == payment_tillit_order_status_id %}
-					<option value="{{ order_status.order_status_id }}" selected="selected">{{ order_status.name }}</option>
-					{% else %}
-					<option value="{{ order_status.order_status_id }}">{{ order_status.name }}</option>
-					{% endif %}
-					{% endfor %}
-				  </select>
-				</div>
-			  </div>
-              <div class="form-group required">
-                <label class="col-sm-2 control-label" for="input-completed-status">{{ entry_status_order_unverify }}</label>
+            </div><!--tab-other-->
+			      <div class="tab-pane" id="tab-status">
+      			  <div class="form-group">
+        				<label class="col-sm-2 control-label" for="input-verify-order-status">{{ entry_verify_order_status }}</label>
+        				<div class="col-sm-10">
+        				  <select name="payment_tillit_verified_status_id" id="input-verify-order-status" class="form-control">
+          					{% for order_status in order_statuses %}
+          					{% if order_status.order_status_id == payment_tillit_verified_status_id %}
+          					<option value="{{ order_status.order_status_id }}" selected="selected">{{ order_status.name }}</option>
+          					{% else %}
+          					<option value="{{ order_status.order_status_id }}">{{ order_status.name }}</option>
+          					{% endif %}
+          					{% endfor %}
+        				  </select>
+        				</div>
+      			  </div>
+              <div class="form-group">
+                <label class="col-sm-2 control-label" for="input-unverify-order-status">{{ entry_unverify_order_status }}</label>
                 <div class="col-sm-10">
-                  <select name="payment_tillit_status_order_unverify" id="input-completed-status" class="form-control">
-				  {% if payment_tillit_status_order_unverify == '0'%}
-                   <option value="1">{{ entry_yes }}</option>
-				   <option value="0" selected="selected">{{ entry_no }}</option>
-                  {% else %}				   
-                   <option value="1" selected="selected">{{ entry_yes }}</option>
-				   <option value="0">{{ entry_no }}</option>
-				  {% endif %}
+                  <select name="payment_tillit_unverified_status_id" id="input-unverify-order-status" class="form-control">
+                    {% for order_status in order_statuses %}
+                    {% if order_status.order_status_id == payment_tillit_unverified_status_id %}
+                    <option value="{{ order_status.order_status_id }}" selected="selected">{{ order_status.name }}</option>
+                    {% else %}
+                    <option value="{{ order_status.order_status_id }}">{{ order_status.name }}</option>
+                    {% endif %}
+                    {% endfor %}
                   </select>
                 </div>
               </div>
-			  
-			  <div class="form-group required">
-                <label class="col-sm-2 control-label" for="input-completed-status">{{ entry_status_order_verify }}</label>
+              <div class="form-group">
+                <label class="col-sm-2 control-label" for="input-failed-order-status">{{ entry_failed_order_status }}</label>
                 <div class="col-sm-10">
-                  <select name="payment_tillit_status_order_verify" id="input-completed-status" class="form-control">
-				  {% if payment_tillit_status_order_verify == '0'%}
-                   <option value="1">{{ entry_yes }}</option>
-				   <option value="0" selected="selected">{{ entry_no }}</option>
-                  {% else %}				   
-                   <option value="1" selected="selected">{{ entry_yes }}</option>
-				   <option value="0">{{ entry_no }}</option>
-				  {% endif %}
+                  <select name="payment_tillit_failed_status_id" id="input-failed-order-status" class="form-control">
+                    {% for order_status in order_statuses %}
+                    {% if order_status.order_status_id == payment_tillit_failed_status_id %}
+                    <option value="{{ order_status.order_status_id }}" selected="selected">{{ order_status.name }}</option>
+                    {% else %}
+                    <option value="{{ order_status.order_status_id }}">{{ order_status.name }}</option>
+                    {% endif %}
+                    {% endfor %}
                   </select>
                 </div>
               </div>
-			  
-			  
-			  <div class="form-group required">
-                <label class="col-sm-2 control-label" for="input-completed-status">{{ entry_status_order_shipped }}</label>
+              <div class="form-group">
+                <label class="col-sm-2 control-label" for="input-canceled-order-status">{{ entry_canceled_order_status }}</label>
                 <div class="col-sm-10">
-                  <select name="payment_tillit_status_order_shipped" id="input-completed-status" class="form-control">
-				  {% if payment_tillit_status_order_shipped == '0'%}
-                   <option value="1">{{ entry_yes }}</option>
-				   <option value="0" selected="selected">{{ entry_no }}</option>
-                  {% else %}				   
-                   <option value="1" selected="selected">{{ entry_yes }}</option>
-				   <option value="0">{{ entry_no }}</option>
-				  {% endif %}
+                  <select name="payment_tillit_canceled_status_id" id="input-canceled-order-status" class="form-control">
+                    {% for order_status in order_statuses %}
+                    {% if order_status.order_status_id == payment_tillit_canceled_status_id %}
+                    <option value="{{ order_status.order_status_id }}" selected="selected">{{ order_status.name }}</option>
+                    {% else %}
+                    <option value="{{ order_status.order_status_id }}">{{ order_status.name }}</option>
+                    {% endif %}
+                    {% endfor %}
                   </select>
                 </div>
               </div>
-              
-			  <div class="form-group required">
-                <label class="col-sm-2 control-label" for="input-completed-status">{{ entry_status_order_delivered }}</label>
+              <div class="form-group">
+                <label class="col-sm-2 control-label" for="input-refunded-order-status">{{ entry_refunded_order_status }}</label>
                 <div class="col-sm-10">
-                  <select name="payment_tillit_status_order_delivered" id="input-completed-status" class="form-control">
-				  {% if payment_tillit_status_order_delivered == '0'%}
-                   <option value="1">{{ entry_yes }}</option>
-				   <option value="0" selected="selected">{{ entry_no }}</option>
-                  {% else %}				   
-                   <option value="1" selected="selected">{{ entry_yes }}</option>
-				   <option value="0">{{ entry_no }}</option>
-				  {% endif %}
+                  <select name="payment_tillit_refunded_status_id" id="input-refunded-order-status" class="form-control">
+                    {% for order_status in order_statuses %}
+                    {% if order_status.order_status_id == payment_tillit_refunded_status_id %}
+                    <option value="{{ order_status.order_status_id }}" selected="selected">{{ order_status.name }}</option>
+                    {% else %}
+                    <option value="{{ order_status.order_status_id }}">{{ order_status.name }}</option>
+                    {% endif %}
+                    {% endfor %}
                   </select>
                 </div>
               </div>
-			  
-			   <div class="form-group required">
-                <label class="col-sm-2 control-label" for="input-completed-status">{{ entry_status_order_canceled }}</label>
+              <div class="form-group">
+                <label class="col-sm-2 control-label" for="input-shipped-order-status">{{ entry_shipped_order_status }}</label>
                 <div class="col-sm-10">
-                  <select name="payment_tillit_status_order_canceled" id="input-completed-status" class="form-control">
-				  {% if payment_tillit_status_order_canceled == '0'%}
-                   <option value="1">{{ entry_yes }}</option>
-				   <option value="0" selected="selected">{{ entry_no }}</option>
-                  {% else %}				   
-                   <option value="1" selected="selected">{{ entry_yes }}</option>
-				   <option value="0">{{ entry_no }}</option>
-				  {% endif %}
+                  <select name="payment_tillit_shipped_status_id" id="input-shipped-order-status" class="form-control">
+                    {% for order_status in order_statuses %}
+                    {% if order_status.order_status_id == payment_tillit_shipped_status_id %}
+                    <option value="{{ order_status.order_status_id }}" selected="selected">{{ order_status.name }}</option>
+                    {% else %}
+                    <option value="{{ order_status.order_status_id }}">{{ order_status.name }}</option>
+                    {% endif %}
+                    {% endfor %}
                   </select>
                 </div>
               </div>
-			  
-			  <div class="form-group required">
-                <label class="col-sm-2 control-label" for="input-completed-status">{{ entry_status_order_refunded }}</label>
+              <div class="form-group">
+                <label class="col-sm-2 control-label" for="input-delivered-order-status">{{ entry_delivered_order_status }}</label>
                 <div class="col-sm-10">
-                  <select name="payment_tillit_status_order_refunded" id="input-completed-status" class="form-control">
-				  {% if payment_tillit_status_order_refunded == '0'%}
-                   <option value="1">{{ entry_yes }}</option>
-				   <option value="0" selected="selected">{{ entry_no }}</option>
-                  {% else %}				   
-                   <option value="1" selected="selected">{{ entry_yes }}</option>
-				   <option value="0">{{ entry_no }}</option>
-				  {% endif %}
+                  <select name="payment_tillit_delivered_status_id" id="input-delivered-order-status" class="form-control">
+                    {% for order_status in order_statuses %}
+                    {% if order_status.order_status_id == payment_tillit_delivered_status_id %}
+                    <option value="{{ order_status.order_status_id }}" selected="selected">{{ order_status.name }}</option>
+                    {% else %}
+                    <option value="{{ order_status.order_status_id }}">{{ order_status.name }}</option>
+                    {% endif %}
+                    {% endfor %}
                   </select>
                 </div>
               </div>		

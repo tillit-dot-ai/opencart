@@ -1,357 +1,969 @@
 <?xml version="1.0" encoding="utf-8"?>
 <modification>
   <name>Tillit Payment Gateway API</name>
-  <code>neon_builder</code>
-  <version>1.1</version>
-  <author>ravi</author>
-  
-  <file path="catalog/controller/checkout/register.php">
-    <operation>
+  <code>tillit_default</code>
+  <version>2.0</version>
+  <author>Gang</author>
+  <link>http://www.tillit.ai</link>
+  <file path="system/library/cart/customer.php">
+  <operation error="log">
       <search>
-        <![CDATA[$json['error']['telephone'] = $this->language->get('error_telephone');]]>
-      </search>
-      <add offset="2" position="replace">
-        <![CDATA[$json['error']['telephone'] = $this->language->get('error_telephone');
-			} else if(strpos($this->request->post['telephone'], '47') != true){
-				$json['error']['telephone'] = 'Please use phone format +47 99999999';
-		]]>
-      </add>
-    </operation>
-  </file>   
-  <file path="catalog/view/theme/default/template/checkout/register.twig">
-    <operation>
-      <search>
-        <![CDATA[<input type="text" name="company" value="" placeholder="{{ entry_company }}" id="input-payment-company"]]>
+        <![CDATA[private $address_id;]]>
       </search>
       <add position="after">
-        <![CDATA[
-			<i class="help">Please type minimum 3 character</i>
-		]]>
+        <![CDATA[private $account_type;]]>
       </add>
     </operation>
-	<operation>
-      <search index="1">
-        <![CDATA[<script type="text/javascript">]]>
+    <operation error="log">
+      <search>
+        <![CDATA[$this->address_id = $customer_query->row['address_id'];]]>
+      </search>
+      <add position="after">
+        <![CDATA[$this->account_type = $customer_query->row['account_type'];]]>
+      </add>
+    </operation>
+    <operation error="log">
+      <search>
+        <![CDATA[public function getAddressId() {]]>
       </search>
       <add position="before">
-        <![CDATA[
-		<script type="text/javascript">
-		let united_kingdom_id = 222;
-		let norway = 160;
-			
-			$('#input-payment-company').on('keyup', function() {
-				var countrycheck = $('#input-payment-country').val();
-				var comapnyname = $('#input-payment-company').val();
-				
-				if(comapnyname.length>=3){
-					
-					if(countrycheck!=united_kingdom_id && countrycheck!=norway){
-						alert('Please select country Norway or United Kingdom (UK) to search');
-						
-					}else {
-					
-						if(countrycheck==united_kingdom_id){
-							var tillit_search_host_url = 'https://gb.search.tillit.ai/';
-							var tillit_checkout_host = 'https://api.tillit.ai/v1/GB/';
-						}
-						if(countrycheck==norway){
-							var tillit_search_host_url = 'https://no.search.tillit.ai/';
-							var tillit_checkout_host = 'https://api.tillit.ai/v1/NO/';
-						}
-						
-						
-						$('input[name=\'company\']').autocomplete({
-							'source': function(request, response) {
-							  $.ajax({
-								url: tillit_search_host_url+'search?limit=50&offset=0&q=' + encodeURIComponent(comapnyname),
-								dataType: 'json',
-								success: function(json) {
-								  json = json.data.items;
-								  response($.map(json, function(item) {
-									return {
-									  label: item['name'],
-									  value: item['id']
-									}
-								  }));
-								}
-							  });
-							},
-							'select': function(item) {
-							  $('input[name=\'company\']').val(item['label']);
-							  
-							  $.ajax({
-									url: tillit_checkout_host+'company/'+encodeURIComponent(item['value'])+'/address?client=wp&client_v=1.2.11',
-									dataType: 'json',
-									success: function(json) {
-									  var city = json.address.city;
-									  var postalCode = json.address.postalCode;
-									  var streetAddress = json.address.streetAddress;
-									  
-									  $('input[name=\'city\']').val(city);
-									  $('input[name=\'postcode\']').val(postalCode);
-									  $('input[name=\'address_1\']').val(streetAddress);
-									  
-									}
-								  });
-							}
-						  });
-					}
-				}
-			});
-			//-
-		</script>
-		]]>
+        <![CDATA[public function getAccountType() {
+      return $this->account_type;
+    }]]>
       </add>
     </operation>
   </file>
+  <file path="catalog/model/localisation/zone.php">
+    <operation error="log">
+      <search>
+        <![CDATA[public function getZonesByCountryId($country_id) {]]>
+      </search>
+      <add position="after">
+        <![CDATA[
+        //Norway(160),UK(222)
+        $countryList = array(222,160);
+        if($this->config->get('payment_tillit_status') && $this->customer->getAccountType() == 'business' && in_array($country_id, $countryList)){
+          return array();
+        }]]>
+      </add>
+    </operation>
+  </file>
+  <file path="catalog/controller/account/register.php">
+  <operation error="log">
+      <search>
+        <![CDATA[$data['column_left'] = $this->load->controller('common/column_left');]]>
+      </search>
+      <add position="before">
+        <![CDATA[
+        if($this->config->get('payment_tillit_status')){
+          $this->language->load('extension/payment/tillit');
+          $data['tillit_status'] = $this->config->get('payment_tillit_status');
+
+          if (isset($this->request->post['account_type'])) {
+            $data['account_type'] = $this->request->post['account_type'];
+          } else {
+            $data['account_type'] = 'business';
+          }
+
+          $this->language->load('account/register');
+        }
+    ]]>
+      </add>
+    </operation>
+  </file>
+  <file path="catalog/view/theme/default/template/account/register.twig">
+  <operation error="log">
+      <search>
+        <![CDATA[{% for custom_field in custom_fields %}]]>
+      </search>
+      <add position="before">
+        <![CDATA[{% if tillit_status %}
+          <div class="form-group required">
+            <label class="col-sm-2 control-label" for="input-country">{{ entry_account_type }}</label>
+            <div class="col-sm-10">
+              {% if account_type == 'personal' %}
+              <label class="radio-inline">
+                <input type="radio" name="account_type" value="personal" checked="checked" />
+                {{ text_personal }}</label>
+              <label class="radio-inline">
+                <input type="radio" name="account_type" value="business" />
+                {{ text_business }}</label>
+              {% else %}
+              <label class="radio-inline">
+                <input type="radio" name="account_type" value="personal" />
+                {{ text_personal }}</label>
+              <label class="radio-inline">
+                <input type="radio" name="account_type" value="business" checked="checked" />
+                {{ text_business }}</label>
+              {% endif %}
+            </div>
+          </div>{% endif %}
+    ]]>
+      </add>
+    </operation>
+  </file>
+  <file path="catalog/controller/account/edit.php">
+    <operation error="log">
+      <search>
+        <![CDATA[$data['back'] = $this->url->link('account/account', '', true);]]>
+      </search>
+      <add position="before">
+        <![CDATA[
+      if($this->config->get('payment_tillit_status')){
+        $this->language->load('extension/payment/tillit');
+        $data['tillit_status'] = $this->config->get('payment_tillit_status');
+
+        if (isset($this->request->post['account_type'])) {
+          $data['account_type'] = $this->request->post['account_type'];
+        } elseif (!empty($customer_info)) {
+          $data['account_type'] = $customer_info['account_type'];
+        } else {
+          $data['account_type'] = 'business';
+        }
+
+        $this->language->load('account/edit');
+      }
+    ]]>
+      </add>
+    </operation>
+  </file>
+  <file path="catalog/view/theme/default/template/account/edit.twig">
+    <operation error="log">
+      <search>
+        <![CDATA[{% for custom_field in custom_fields %}]]>
+      </search>
+      <add position="before">
+        <![CDATA[{% if tillit_status %}
+          <div class="form-group required">
+            <label class="col-sm-2 control-label" for="input-country">{{ entry_account_type }}</label>
+            <div class="col-sm-10">
+              {% if account_type == 'personal' %}
+              <label class="radio-inline">
+                <input type="radio" name="account_type" value="personal" checked="checked" />
+                {{ text_personal }}</label>
+              <label class="radio-inline">
+                <input type="radio" name="account_type" value="business" />
+                {{ text_business }}</label>
+              {% else %}
+              <label class="radio-inline">
+                <input type="radio" name="account_type" value="personal" />
+                {{ text_personal }}</label>
+              <label class="radio-inline">
+                <input type="radio" name="account_type" value="business" checked="checked" />
+                {{ text_business }}</label>
+              {% endif %}
+            </div>
+          </div>{% endif %}
+    ]]>
+      </add>
+    </operation>
+  </file>
+  <file path="catalog/model/account/customer.php">
+    <operation error="log">
+      <search>
+        <![CDATA[$customer_id = $this->db->getLastId();]]>
+      </search>
+      <add position="after">
+        <![CDATA[
+        if($this->config->get('payment_tillit_status')){
+      if (isset($data['account_type'])) {
+        $this->db->query("UPDATE `" . DB_PREFIX . "customer` SET account_type = '" . $this->db->escape($data['account_type']) . "' WHERE customer_id = '" . (int)$customer_id . "'");
+      }
+    }]]>
+      </add>
+    </operation>
+    <operation error="log">
+      <search>
+        <![CDATA[public function editCustomer($customer_id, $data) {]]>
+      </search>
+      <add position="after">
+        <![CDATA[
+        if($this->config->get('payment_tillit_status')){
+      if ($data['account_type']) {
+        $this->db->query("UPDATE `" . DB_PREFIX . "customer` SET account_type = '" . $this->db->escape($data['account_type']) . "' WHERE customer_id = '" . (int)$customer_id . "'");
+      }
+    }
+    ]]>
+      </add>
+    </operation>
+  </file>
+
+  <file path="catalog/controller/account/address.php">
+    
+    <operation error="log">
+      <search>
+        <![CDATA[$data['back'] = $this->url->link('account/address', '', true);]]>
+      </search>
+      <add position="before">
+        <![CDATA[
+      if($this->config->get('payment_tillit_status') && $this->customer->getAccountType() == 'business'){
+        $data['tillit_status'] = $this->config->get('payment_tillit_status');
+
+        $this->language->load('extension/payment/tillit');
+
+        if (isset($this->request->post['company_id'])) {
+          $data['company_id'] = $this->request->post['company_id'];
+        }  elseif (!empty($address_info)) {
+          $data['company_id'] = $address_info['company_id'];
+        } else {
+          $data['company_id'] = '';
+        }
+
+        $this->language->load('account/address');
+      }
+    ]]>
+      </add>
+    </operation>
+    <operation error="log">
+      <search>
+        <![CDATA[if (isset($this->error['city'])) {]]>
+      </search>
+      <add position="before">
+        <![CDATA[
+         if (isset($this->error['company'])) {
+          $data['error_company'] = $this->error['company'];
+        } else {
+          $data['error_company'] = '';
+        }
+        ]]>
+      </add>
+    </operation>
+    <operation error="log">
+      <search>
+        <![CDATA[$country_info = $this->model_localisation_country->getCountry($this->request->post['country_id']);]]>
+      </search>
+      <add position="before">
+        <![CDATA[
+         if($this->config->get('payment_tillit_status') && $this->customer->getAccountType() == 'business'){
+          if ($this->request->post['company_id'] == '' && in_array($this->request->post['country_id'], array(222,160))) {
+            $this->error['company'] = 'Please select company from suggested list.';
+          }
+        }
+        ]]>
+      </add>
+    </operation>
+  </file>
+  <file path="catalog/model/account/address.php">
+    <operation error="log">
+      <search>
+        <![CDATA[if (!empty($data['default'])) {]]>
+      </search>
+      <add position="before">
+        <![CDATA[
+      if($this->config->get('payment_tillit_status')){
+        if (!empty($data['company_id'])) {
+          $this->db->query("UPDATE " . DB_PREFIX . "address SET company_id = '" . $this->db->escape($data['company_id']) . "' WHERE address_id = '" . (int)$address_id . "'");
+        }
+      }
+    ]]>
+      </add>
+    </operation>
+    <operation error="log">
+      <search>
+        <![CDATA['company'        => $address_query->row['company'],]]>
+      </search>
+      <add position="after">
+        <![CDATA['company_id'        => $address_query->row['company_id'],]]>
+      </add>
+    </operation>
+    
+  </file>
   
+  <file path="catalog/view/theme/default/template/account/address_form.twig">
+    <operation error="log">
+      <search>
+        <![CDATA[<input type="text" name="company" value="{{ company }}" placeholder="{{ entry_company }}" id="input-company" class="form-control" />]]>
+      </search>
+      <add position="after">
+        <![CDATA[{% if tillit_status %}{% if error_company %}<div class="text-danger">{{ error_company }}</div>
+              {% endif %}</div></div><div class="form-group">
+        <label class="col-sm-2 control-label" for="input-payment-company-id">{{ entry_company_id }}</label>
+        <div class="col-sm-10"><input readonly placeholder="{{ text_autocomplete }}" type="text" name="company_id" value="{{ company_id }}" id="input-payment-company-id" class="form-control"/>{% endif %}]]>
+      </add>
+    </operation>
+    <operation error="log">
+      <search>
+        <![CDATA[{{ footer }}]]>
+      </search>
+      <add position="before">
+        <![CDATA[{% if tillit_status %}<script type="text/javascript"><!--
+    $('#input-country').on('change', function() {
+      let united_kingdom_id = 222;
+      let norway = 160;
+      if(united_kingdom_id == $(this).val() || norway == $(this).val()) {
+        var $div = $('#input-zone').closest('div[class^="form-group"]').removeClass( "required");
+      }else {
+        var $div = $('#input-zone').closest('div[class^="form-group"]').addClass( "required");
+      }
+    });
+    $('#input-company').on('keyup', function() {
+      let united_kingdom_id = 222;
+      let norway = 160;
+      var countrycheck = $('#input-country').val();
+      var comapnyname = $('#input-company').val();
+    
+      if((comapnyname).length > 2){
+        if(countrycheck!=united_kingdom_id && countrycheck!=norway){
+          //alert('Please select country Norway or United Kingdom to search');
+        }else {
+          $('input[name=\'company\']').parent().find('ul.dropdown-menu').remove();
+          $('input[name=\'company\']').autocomplete({
+            'source': function(request, response) {
+              $.ajax({
+                url: 'index.php?route=extension/payment/tillit/company&company=' + encodeURIComponent(request) + '&country_id=' + encodeURIComponent($('#input-country').val()),
+                dataType: 'json',               
+                success: function(json) {
+                  if(json['success']){
+                    json = json.data.items;
+                    response($.map(json, function(item) {
+                    return {
+                      label: item['name'],
+                      value: item['id']
+                    }
+                    }));
+                  }
+                }
+              });
+            },
+            'select': function(item) {
+              $('input[name=\'company\']').val(item['label']);
+              $('input[name=\'company_id\']').val(item['value']);
+              $.ajax({
+                url: 'index.php?route=extension/payment/tillit/address&company_id=' + encodeURIComponent(item['value']),
+                dataType: 'json',
+                success: function(json) {
+                  var city = json.address.city;
+                  var postalCode = json.address.postalCode;
+                  var streetAddress = json.address.streetAddress;
+                  
+                  $('input[name=\'city\']').val(city);
+                  $('input[name=\'postcode\']').val(postalCode);
+                  $('input[name=\'address_1\']').val(streetAddress);
+                  
+                }
+              });
+            }
+          });
+        }
+      }
+    });
+    
+    //--></script>{% endif %}
+    ]]>
+      </add>
+    </operation>
+  </file>
+
+  <file path="catalog/controller/checkout/checkout.php">
+    <operation error="log">
+      <search>
+        <![CDATA[$this->load->model('localisation/zone');]]>
+      </search>
+      <add position="after">
+        <![CDATA[
+        $zone = $this->model_localisation_zone->getZonesByCountryId($this->request->get['country_id']);
+        if (!$this->customer->isLogged()) {
+          //Norway(160),UK(222)
+            $countryList = array(222,160);
+            if($this->config->get('payment_tillit_status') && in_array($this->request->get['country_id'], $countryList)){
+              $zone = array();
+            }
+        }]]>
+      </add>
+    </operation>
+    <operation error="log">
+      <search>
+        <![CDATA['zone'              => $this->model_localisation_zone->getZonesByCountryId($this->request->get['country_id']),]]>
+      </search>
+      <add position="replace">
+        <![CDATA['zone'              => $zone,]]>
+      </add>
+    </operation>
+  </file>
+
+  <file path="catalog/controller/checkout/payment_address.php">
+    <operation error="log">
+      <search>
+        <![CDATA[if ($this->request->post['country_id'] == '') {]]>
+      </search>
+      <add position="before">
+        <![CDATA[
+    if($this->config->get('payment_tillit_status') && $this->customer->getAccountType() == 'business'){
+      if ($this->request->post['company_id'] == '' && in_array($this->request->post['country_id'], array(222,160))) {
+        $json['error']['company'] = 'Please select company from suggested list.';
+      }
+    }
+    ]]>
+      </add>
+    </operation>
+    <operation error="log">
+      <search>
+        <![CDATA[$this->response->setOutput($this->load->view('checkout/payment_address', $data));]]>
+      </search>
+      <add position="before">
+        <![CDATA[
+      if($this->config->get('payment_tillit_status') && $this->customer->getAccountType() == 'business'){
+        $data['tillit_status'] = $this->config->get('payment_tillit_status');
+        $this->language->load('extension/payment/tillit');
+        $this->load->language('checkout/checkout');
+      }
+    ]]>
+      </add>
+    </operation>
+  </file>
+  <file path="catalog/view/theme/default/template/checkout/payment_address.twig">
+    <operation error="log">
+      <search>
+        <![CDATA[<input type="text" name="company" value="" placeholder="{{ entry_company }}" id="input-payment-company" class="form-control" />]]>
+      </search>
+      <add position="after">
+        <![CDATA[{% if tillit_status %}</div></div><div class="form-group">
+        <label class="col-sm-2 control-label" for="input-payment-company-id">{{ entry_company_id }}</label>
+        <div class="col-sm-10"><input readonly placeholder="{{ text_autocomplete }}" type="text" name="company_id" value="{{ company_id }}" id="input-payment-company-id" class="form-control"/>{% endif %}]]>
+      </add>
+    </operation>
+    <operation error="log">
+      <search>
+        <![CDATA[$('input[name=\'payment_address\']').on('change', function() {]]>
+      </search>
+      <add position="before">
+        <![CDATA[{% if tillit_status %}$('#input-payment-country').on('change', function() {
+      let united_kingdom_id = 222;
+      let norway = 160;
+      if(united_kingdom_id == $(this).val() || norway == $(this).val()) {
+        var $div = $('#input-payment-zone').closest('div[class^="form-group"]').removeClass( "required");
+      }else {
+        var $div = $('#input-payment-zone').closest('div[class^="form-group"]').addClass( "required");
+      }
+    });
+    $('#input-payment-company').on('keyup', function() {
+      let united_kingdom_id = 222;
+      let norway = 160;
+      var countrycheck = $('#input-payment-country').val();
+      var comapnyname = $('#input-payment-company').val();
+    
+      if((comapnyname).length > 2){
+        if(countrycheck!=united_kingdom_id && countrycheck!=norway){
+          //alert('Please select country Norway or United Kingdom to search');
+        }else {
+          $('input[name=\'company\']').parent().find('ul.dropdown-menu').remove();
+          $('input[name=\'company\']').autocomplete({
+            'source': function(request, response) {
+              $.ajax({
+                url: 'index.php?route=extension/payment/tillit/company&company=' + encodeURIComponent(request) + '&country_id=' + encodeURIComponent($('#input-payment-country').val()),
+                dataType: 'json',               
+                success: function(json) {
+                  if(json['success']){
+                    json = json.data.items;
+                    response($.map(json, function(item) {
+                    return {
+                      label: item['name'],
+                      value: item['id']
+                    }
+                    }));
+                  }
+                }
+              });
+            },
+            'select': function(item) {
+              $('input[name=\'company\']').val(item['label']);
+              $('input[name=\'company_id\']').val(item['value']);
+              $.ajax({
+                url: 'index.php?route=extension/payment/tillit/address&company_id=' + encodeURIComponent(item['value']),
+                dataType: 'json',
+                success: function(json) {
+                  var city = json.address.city;
+                  var postalCode = json.address.postalCode;
+                  var streetAddress = json.address.streetAddress;
+                  
+                  $('input[name=\'city\']').val(city);
+                  $('input[name=\'postcode\']').val(postalCode);
+                  $('input[name=\'address_1\']').val(streetAddress);
+                  
+                }
+              });
+            }
+          });
+        }
+      }
+    });{% endif %}
+    ]]>
+      </add>
+    </operation>
+  </file>
+  <file path="catalog/controller/checkout/shipping_address.php">
+  <operation error="log">
+      <search>
+        <![CDATA[if ($this->request->post['country_id'] == '') {]]>
+      </search>
+      <add position="before">
+        <![CDATA[
+      if($this->config->get('payment_tillit_status') && $this->customer->getAccountType() == 'business'){
+        if ($this->request->post['company_id'] == '' && in_array($this->request->post['country_id'], array(222,160))) {
+          $json['error']['company'] = 'Please select company from suggested list.';
+        }
+      }
+    ]]>
+      </add>
+    </operation>
+    <operation error="log">
+      <search>
+        <![CDATA[$this->response->setOutput($this->load->view('checkout/shipping_address', $data));]]>
+      </search>
+      <add position="before">
+        <![CDATA[
+      if($this->config->get('payment_tillit_status') && $this->customer->getAccountType() == 'business'){
+        $data['tillit_status'] = $this->config->get('payment_tillit_status');
+        $this->language->load('extension/payment/tillit');
+        $this->load->language('checkout/checkout');
+      }
+    ]]>
+      </add>
+    </operation>
+  </file>
+  <file path="catalog/view/theme/default/template/checkout/shipping_address.twig">
+    <operation error="log">
+      <search>
+        <![CDATA[<input type="text" name="company" value="" placeholder="{{ entry_company }}" id="input-shipping-company" class="form-control" />]]>
+      </search>
+      <add position="after">
+        <![CDATA[{% if tillit_status %}</div></div><div class="form-group">
+        <label class="col-sm-2 control-label" for="input-shipping-company-id">{{ entry_company_id }}</label>
+        <div class="col-sm-10"><input readonly placeholder="{{ text_autocomplete }}" type="text" name="company_id" value="{{ company_id }}" id="input-payment-company-id" class="form-control"/>{% endif %}]]>
+      </add>
+    </operation>
+    <operation error="log">
+      <search>
+        <![CDATA[$('#collapse-shipping-address select[name=\'country_id\']').on('change', function() {]]>
+      </search>
+      <add position="before">
+        <![CDATA[{% if tillit_status %}$('#input-shipping-country').on('change', function() {
+      let united_kingdom_id = 222;
+      let norway = 160;
+      if(united_kingdom_id == $(this).val() || norway == $(this).val()) {
+        var $div = $('#input-shipping-zone').closest('div[class^="form-group"]').removeClass( "required");
+      }else {
+        var $div = $('#input-shipping-zone').closest('div[class^="form-group"]').addClass( "required");
+      }
+    });
+    $('#input-shipping-company').on('keyup', function() {
+      let united_kingdom_id = 222;
+      let norway = 160;
+      var countrycheck = $('#input-shipping-country').val();
+      var comapnyname = $('#input-shipping-company').val();
+    
+      if((comapnyname).length > 2){
+        if(countrycheck!=united_kingdom_id && countrycheck!=norway){
+          //alert('Please select country Norway or United Kingdom to search');
+        }else {
+          $('input[name=\'company\']').parent().find('ul.dropdown-menu').remove();
+          $('input[name=\'company\']').autocomplete({
+            'source': function(request, response) {
+              $.ajax({
+                url: 'index.php?route=extension/payment/tillit/company&company=' + encodeURIComponent(request) + '&country_id=' + encodeURIComponent($('#input-shipping-country').val()),
+                dataType: 'json',               
+                success: function(json) {
+                  if(json['success']){
+                    json = json.data.items;
+                    response($.map(json, function(item) {
+                    return {
+                      label: item['name'],
+                      value: item['id']
+                    }
+                    }));
+                  }
+                }
+              });
+            },
+            'select': function(item) {
+              $('input[name=\'company\']').val(item['label']);
+              $('input[name=\'company_id\']').val(item['value']);
+              $.ajax({
+                url: 'index.php?route=extension/payment/tillit/address&company_id=' + encodeURIComponent(item['value']),
+                dataType: 'json',
+                success: function(json) {
+                  var city = json.address.city;
+                  var postalCode = json.address.postalCode;
+                  var streetAddress = json.address.streetAddress;
+                  
+                  $('input[name=\'city\']').val(city);
+                  $('input[name=\'postcode\']').val(postalCode);
+                  $('input[name=\'address_1\']').val(streetAddress);
+                  
+                }
+              });
+            }
+          });
+        }
+      }
+    });{% endif %}
+    ]]>
+      </add>
+    </operation>
+  </file>
+
+
+  <file path="catalog/controller/checkout/guest.php">
+    <operation error="log">
+      <search>
+        <![CDATA[$this->response->setOutput($this->load->view('checkout/guest', $data));]]>
+      </search>
+      <add position="before">
+        <![CDATA[
+      if($this->config->get('payment_tillit_status')){
+        $data['tillit_status'] = $this->config->get('payment_tillit_status');
+        $this->load->language('extension/payment/tillit');
+
+        if (isset($this->session->data['guest']['account_type'])) {
+          $data['account_type'] = $this->session->data['guest']['account_type'];
+        } else {
+          $data['account_type'] = '';
+        }
+
+        if (isset($this->session->data['payment_address']['company_id'])) {
+          $data['company_id'] = $this->session->data['payment_address']['company_id'];
+        } else {
+          $data['company_id'] = '';
+        }
+
+        $this->load->language('checkout/checkout');
+      }
+    ]]>
+      </add>
+    </operation>
+    <operation error="log">
+      <search>
+        <![CDATA[if ($this->request->post['country_id'] == '') {]]>
+      </search>
+      <add position="before">
+        <![CDATA[
+      if($this->config->get('payment_tillit_status') && $this->request->post['account_type'] == 'business'){
+        if ($this->request->post['company_id'] == '' && in_array($this->request->post['country_id'], array(222,160))) {
+          $json['error']['company'] = 'Please select company from suggested list.';
+        }
+      }
+    ]]>
+      </add>
+    </operation>
+    <operation error="log">
+      <search>
+        <![CDATA[$this->session->data['payment_address']['company'] = $this->request->post['company'];]]>
+      </search>
+      <add position="after">
+        <![CDATA[
+      if($this->config->get('payment_tillit_status')){
+        $this->session->data['payment_address']['company_id'] = $this->request->post['company_id'];
+        $this->session->data['guest']['account_type'] = $this->request->post['account_type'];
+      }
+    ]]>
+      </add>
+    </operation>
+  </file>
   <file path="catalog/view/theme/default/template/checkout/guest.twig">
-    <operation>
+    <operation error="log">
       <search>
-        <![CDATA[<input type="text" name="company" value="{{ company }}" placeholder="{{ entry_company }}" id="input-payment-company"]]>
+        <![CDATA[<input type="text" name="company" value="{{ company }}" placeholder="{{ entry_company }}" id="input-payment-company" class="form-control" />]]>
       </search>
       <add position="after">
-        <![CDATA[
-			<i class="help">Please type minimum 3 character</i>
-		]]>
+        <![CDATA[{% if tillit_status %}</div>
+        <div class="form-group">
+        <label class="control-label" for="input-payment-company-id">{{ entry_company_id }}</label>
+        <input readonly placeholder="{{ text_autocomplete }}" type="text" name="company_id" value="{{ company_id }}" id="input-payment-company-id" class="form-control"/>{% endif %}]]>
       </add>
     </operation>
-	<operation>
-      <search index="1">
-        <![CDATA[<script type="text/javascript">]]>
+  <operation error="log">
+      <search>
+        <![CDATA[<input type="text" name="telephone" value="{{ telephone }}" placeholder="{{ entry_telephone }}" id="input-payment-telephone" class="form-control" />]]>
+      </search>
+      <add position="after">
+        <![CDATA[{% if tillit_status %}</div>
+          <div class="form-group required">
+            <label class="control-label" for="input-payment-account-type">{{ entry_account_type }}</label>
+            <div class="">
+              {% if account_type == 'personal' %}
+              <label class="radio-inline">
+                <input type="radio" name="account_type" value="personal" checked="checked" />
+                {{ text_personal }}</label>
+              <label class="radio-inline">
+                <input type="radio" name="account_type" value="business" />
+                {{ text_business }}</label>
+              {% else %}
+              <label class="radio-inline">
+                <input type="radio" name="account_type" value="personal" />
+                {{ text_personal }}</label>
+              <label class="radio-inline">
+                <input type="radio" name="account_type" value="business" checked="checked" />
+                {{ text_business }}</label>
+              {% endif %}
+            </div>{% endif %}
+    ]]>
+      </add>
+    </operation>
+    <operation error="log">
+      <search>
+        <![CDATA[$('#collapse-payment-address input[name=\'customer_group_id\']').on('change', function() {]]>
+      </search>
+      <add position="before">
+        <![CDATA[{% if tillit_status %}
+    $('input[name=\'account_type\']').on('change', function() {
+      if($(this).val() == 'personal'){
+        $div = $('#input-payment-company-id').closest('div[class^="form-group"]').hide();
+      } else {
+        $div = $('#input-payment-company-id').closest('div[class^="form-group"]').show();
+      }
+    });
+    $('#input-payment-country').on('change', function() {
+      let united_kingdom_id = 222;
+      let norway = 160;
+      if(united_kingdom_id == $(this).val() || norway == $(this).val()) {
+        var $div = $('#input-payment-zone').closest('div[class^="form-group"]').removeClass( "required");
+      }else {
+        var $div = $('#input-payment-zone').closest('div[class^="form-group"]').addClass( "required");
+      }
+    });
+    $('#input-payment-company').on('keyup', function() {
+      if($('input[name=\'account_type\']:checked').val() == 'personal'){
+        return false;
+      }
+      let united_kingdom_id = 222;
+      let norway = 160;
+      var countrycheck = $('#input-payment-country').val();
+      var comapnyname = $('#input-payment-company').val();
+    
+      if((comapnyname).length > 2){
+        if(countrycheck!=united_kingdom_id && countrycheck!=norway){
+          //alert('Please select country Norway or United Kingdom to search');
+        }else {
+          $('input[name=\'company\']').parent().find('ul.dropdown-menu').remove();
+          $('input[name=\'company\']').autocomplete({
+            'source': function(request, response) {
+              $.ajax({
+                url: 'index.php?route=extension/payment/tillit/company&company=' + encodeURIComponent(request) + '&country_id=' + encodeURIComponent($('#input-payment-country').val()),
+                dataType: 'json',               
+                success: function(json) {
+                  if(json['success']){
+                    json = json.data.items;
+                    response($.map(json, function(item) {
+                    return {
+                      label: item['name'],
+                      value: item['id']
+                    }
+                    }));
+                  }
+                }
+              });
+            },
+            'select': function(item) {
+              $('input[name=\'company\']').val(item['label']);
+              $('input[name=\'company_id\']').val(item['value']);
+              $.ajax({
+                url: 'index.php?route=extension/payment/tillit/address&company_id=' + encodeURIComponent(item['value']),
+                dataType: 'json',
+                success: function(json) {
+                  var city = json.address.city;
+                  var postalCode = json.address.postalCode;
+                  var streetAddress = json.address.streetAddress;
+                  
+                  $('input[name=\'city\']').val(city);
+                  $('input[name=\'postcode\']').val(postalCode);
+                  $('input[name=\'address_1\']').val(streetAddress);
+                  
+                }
+              });
+            }
+          });
+        }
+      }
+    });{% endif %}
+    ]]>
+      </add>
+    </operation>
+  </file>
+
+  <file path="catalog/controller/checkout/register.php">
+    <operation error="log">
+      <search>
+        <![CDATA[$this->response->setOutput($this->load->view('checkout/register', $data));]]>
       </search>
       <add position="before">
         <![CDATA[
-		<script type="text/javascript">
-		let united_kingdom_id = 222;
-		let norway = 160;
-			
-			$('#input-payment-company').on('keyup', function() {
-				var countrycheck = $('#input-payment-country').val();
-				var comapnyname = $('#input-payment-company').val();
-				
-				if(comapnyname.length>=3){
-					
-					if(countrycheck!=united_kingdom_id && countrycheck!=norway){
-						alert('Please select country Norway or United Kingdom (UK) to search');
-						
-					}else {
-					
-						if(countrycheck==united_kingdom_id){
-							var tillit_search_host_url = 'https://gb.search.tillit.ai/';
-							var tillit_checkout_host = 'https://api.tillit.ai/v1/GB/';
-						}
-						if(countrycheck==norway){
-							var tillit_search_host_url = 'https://no.search.tillit.ai/';
-							var tillit_checkout_host = 'https://api.tillit.ai/v1/NO/';
-						}
-						
-						
-						$('input[name=\'company\']').autocomplete({
-							'source': function(request, response) {
-							  $.ajax({
-								url: tillit_search_host_url+'search?limit=50&offset=0&q=' + encodeURIComponent(comapnyname),
-								dataType: 'json',
-								success: function(json) {
-								  json = json.data.items;
-								  response($.map(json, function(item) {
-									return {
-									  label: item['name'],
-									  value: item['id']
-									}
-								  }));
-								}
-							  });
-							},
-							'select': function(item) {
-							  $('input[name=\'company\']').val(item['label']);
-							  
-							  $.ajax({
-									url: tillit_checkout_host+'company/'+encodeURIComponent(item['value'])+'/address?client=wp&client_v=1.2.11',
-									dataType: 'json',
-									success: function(json) {
-									  var city = json.address.city;
-									  var postalCode = json.address.postalCode;
-									  var streetAddress = json.address.streetAddress;
-									  
-									  $('input[name=\'city\']').val(city);
-									  $('input[name=\'postcode\']').val(postalCode);
-									  $('input[name=\'address_1\']').val(streetAddress);
-									  
-									}
-								  });
-							}
-						  });
-					}
-				}
-			});
-			//-
-		</script>
-		]]>
+      if($this->config->get('payment_tillit_status')){
+        $data['tillit_status'] = $this->config->get('payment_tillit_status');
+        $this->load->language('extension/payment/tillit');
+
+        $this->load->language('checkout/checkout');
+      }
+    ]]>
+      </add>
+    </operation>
+    <operation error="log">
+      <search>
+        <![CDATA[if ($this->request->post['country_id'] == '') {]]>
+      </search>
+      <add position="before">
+        <![CDATA[
+      if($this->config->get('payment_tillit_status') && $this->request->post['account_type'] == 'business'){
+        if ($this->request->post['company_id'] == '' && in_array($this->request->post['country_id'], array(222,160))) {
+          $json['error']['company'] = 'Please select company from suggested list.';
+        }
+      }
+    ]]>
+      </add>
+    </operation>
+    <operation error="log">
+      <search>
+        <![CDATA[if ($this->request->post['country_id'] == '') {]]>
+      </search>
+      <add position="before">
+        <![CDATA[
+      if($this->config->get('payment_tillit_status') && $this->request->post['account_type'] == 'business'){
+        if ($this->request->post['company_id'] == '' && in_array($this->request->post['country_id'], array(222,160))) {
+          $json['error']['company'] = 'Please select company from suggested list.';
+        }
+      }
+    ]]>
+      </add>
+    </operation>
+  </file>
+  <file path="catalog/view/theme/default/template/checkout/register.twig">
+    <operation error="log">
+      <search>
+        <![CDATA[<input type="text" name="company" value="" placeholder="{{ entry_company }}" id="input-payment-company" class="form-control" />]]>
+      </search>
+      <add position="after">
+        <![CDATA[{% if tillit_status %}</div>
+        <div class="form-group">
+        <label class="control-label" for="input-payment-company-id">{{ entry_company_id }}</label>
+        <input readonly placeholder="{{ text_autocomplete }}" type="text" name="company_id" value="" id="input-payment-company-id" class="form-control"/>{% endif %}]]>
+      </add>
+    </operation>
+  <operation error="log">
+      <search>
+        <![CDATA[<input type="text" name="telephone" value="" placeholder="{{ entry_telephone }}" id="input-payment-telephone" class="form-control" />]]>
+      </search>
+      <add position="after">
+        <![CDATA[{% if tillit_status %}</div>
+          <div class="form-group required">
+            <label class="control-label" for="input-payment-account-type">{{ entry_account_type }}</label>
+            <div class="">
+              {% if account_type == 'personal' %}
+              <label class="radio-inline">
+                <input type="radio" name="account_type" value="personal" checked="checked" />
+                {{ text_personal }}</label>
+              <label class="radio-inline">
+                <input type="radio" name="account_type" value="business" />
+                {{ text_business }}</label>
+              {% else %}
+              <label class="radio-inline">
+                <input type="radio" name="account_type" value="personal" />
+                {{ text_personal }}</label>
+              <label class="radio-inline">
+                <input type="radio" name="account_type" value="business" checked="checked" />
+                {{ text_business }}</label>
+              {% endif %}
+            </div>{% endif %}
+    ]]>
+      </add>
+    </operation>
+    <operation error="log">
+      <search>
+        <![CDATA[$('#collapse-payment-address input[name=\'customer_group_id\']').on('change', function() {]]>
+      </search>
+      <add position="before">
+        <![CDATA[{% if tillit_status %}
+    $('input[name=\'account_type\']').on('change', function() {
+      if($(this).val() == 'personal'){
+        $div = $('#input-payment-company-id').closest('div[class^="form-group"]').hide();
+      } else {
+        $div = $('#input-payment-company-id').closest('div[class^="form-group"]').show();
+      }
+    });
+    $('#input-payment-country').on('change', function() {
+      let united_kingdom_id = 222;
+      let norway = 160;
+      if(united_kingdom_id == $(this).val() || norway == $(this).val()) {
+        var $div = $('#input-payment-zone').closest('div[class^="form-group"]').removeClass( "required");
+      }else {
+        var $div = $('#input-payment-zone').closest('div[class^="form-group"]').addClass( "required");
+      }
+    });
+    $('#input-payment-company').on('keyup', function() {
+      if($('input[name=\'account_type\']:checked').val() == 'personal'){
+        return false;
+      }
+      let united_kingdom_id = 222;
+      let norway = 160;
+      var countrycheck = $('#input-payment-country').val();
+      var comapnyname = $('#input-payment-company').val();
+    
+      if((comapnyname).length > 2){
+        if(countrycheck!=united_kingdom_id && countrycheck!=norway){
+          //alert('Please select country Norway or United Kingdom to search');
+        }else {
+          $('input[name=\'company\']').parent().find('ul.dropdown-menu').remove();
+          $('input[name=\'company\']').autocomplete({
+            'source': function(request, response) {
+              $.ajax({
+                url: 'index.php?route=extension/payment/tillit/company&company=' + encodeURIComponent(request) + '&country_id=' + encodeURIComponent($('#input-payment-country').val()),
+                dataType: 'json',               
+                success: function(json) {
+                  if(json['success']){
+                    json = json.data.items;
+                    response($.map(json, function(item) {
+                    return {
+                      label: item['name'],
+                      value: item['id']
+                    }
+                    }));
+                  }
+                }
+              });
+            },
+            'select': function(item) {
+              $('input[name=\'company\']').val(item['label']);
+              $('input[name=\'company_id\']').val(item['value']);
+              $.ajax({
+                url: 'index.php?route=extension/payment/tillit/address&company_id=' + encodeURIComponent(item['value']),
+                dataType: 'json',
+                success: function(json) {
+                  var city = json.address.city;
+                  var postalCode = json.address.postalCode;
+                  var streetAddress = json.address.streetAddress;
+                  
+                  $('input[name=\'city\']').val(city);
+                  $('input[name=\'postcode\']').val(postalCode);
+                  $('input[name=\'address_1\']').val(streetAddress);
+                  
+                }
+              });
+            }
+          });
+        }
+      }
+    });{% endif %}
+    ]]>
+      </add>
+    </operation>
+  </file>
+  <file path="catalog/view/theme/default/template/checkout/checkout.twig">
+    <operation error="log">
+      <search>
+        <![CDATA[#collapse-shipping-address input[type=\'text\']]]>
+      </search>
+      <add position="replace">
+        <![CDATA[#collapse-shipping-address input[type=\'text\'], #collapse-shipping-address input[type=\'hidden\']]]>
+      </add>
+    </operation>
+  </file>
+  <file path="admin/view/template/sale/order_info.twig">
+    <operation error="log">
+      <search>
+        <![CDATA[$('#history').load('index.php?route=sale/order/history&user_token={{ user_token }}&order_id={{ order_id }}');]]>
+      </search>
+      <add position="before">
+        <![CDATA[$('#history').load('index.php?route=extension/payment/tillit/history&user_token={{ user_token }}&order_id={{ order_id }}&order_status_id={{ order_id }}' + encodeURIComponent($('select[name=\'order_status_id\']').val()));]]>
       </add>
     </operation>
   </file>
   
-  <file path="catalog/controller/checkout/payment_method.php">
-    <operation>
-      <search>
-        <![CDATA[public function save() {]]>
-      </search>
-      <add position="before">
-        <![CDATA[
-			public function setorder_intent() {		
-				if($this->request->get['order_intent_id']) {
-				   $this->session->data['tillit_order_intent'] = $this->request->get['order_intent_id'];
-				}  
-				
-			}
-		]]>
-      </add>
-    </operation>
-	<operation>
-      <search>
-        <![CDATA[if (isset($this->session->data['payment_method']['code'])) {]]>
-      </search>
-      <add position="before">
-        <![CDATA[
-			// Code by Tillit extension start
-			
-			$data['merchant_key'] =  $this->config->get('payment_tillit_merchant_id');
-		   $data['api_key'] =  $this->config->get('payment_tillit_api_key');
-		   $data['gross_amount'] =  '0.00';
-		   $data['company_name'] = $this->session->data['payment_address']['company'];
-		   $data['country_prefix'] =  $this->session->data['payment_address']['iso_code_2'];
-		   $data['organization_number'] =  '';
-		   $data['first_name'] =  $this->session->data['payment_address']['firstname'];
-		   $data['last_name'] =  $this->session->data['payment_address']['lastname'];
-		   $data['email'] =  $this->customer->getEmail();
-		   $data['phone_number'] =  $this->customer->getTelephone();
-		   $data['currency'] =  '';
-		   $data['merchant_id'] =  $this->config->get('payment_tillit_merchant_id');
-		   $data['gross_amount'] =  $this->cart->getTotal();
-
-		   
-		   $data['api_key'] =  $this->config->get('payment_tillit_api_key');
-		   $data['choose_product'] =  $this->config->get('payment_tillit_choose_product');
-		   $data['invoice_days'] =  $this->config->get('payment_tillit_invoice_days');
-		   $data['payment_mode'] =  $this->config->get('payment_tillit_payment_mode');
-		   $data['company_name'] =  $this->config->get('payment_tillit_company_name');
-		   $data['company_org'] =  $this->config->get('payment_tillit_company_org');
-		   $data['pre_approve_checkout'] =  $this->config->get('payment_tillit_pre_approve_checkout');
-		   $data['initiate_payment_refund'] =  $this->config->get('payment_tillit_initiate_payment_refund');
-		   $data['status_order_unverify'] =  $this->config->get('payment_tillit_status_order_unverify');
-		   $data['status_order_verify'] =  $this->config->get('payment_tillit_status_order_verify');
-		   $data['status_order_shipped'] =  $this->config->get('payment_tillit_status_order_shipped');
-		   $data['status_order_delivered'] =  $this->config->get('payment_tillit_status_order_delivered');
-		   $data['status_order_canceled'] =  $this->config->get('payment_tillit_status_order_canceled');
-		   $data['status_order_refunded'] =  $this->config->get('payment_tillit_status_order_refunded');
-		   $data['total'] =  $this->config->get('payment_tillit_total');
-		   $data['order_status_id'] =  $this->config->get('payment_tillit_order_status_id');
-		   $data['geo_zone_id'] =  $this->config->get('payment_tillit_geo_zone_id');
-		   $data['status'] =  $this->config->get('payment_tillit_status');
-		   $data['sort_order'] =  $this->config->get('payment_tillit_sort_order');
-		   
-		   $data['error_telephone'] = '';
-		   
-		   $this->session->data['tillit_order_intent'] = '123';
-		   
-		   // Tillit Validation
-		   
-		   if(!empty($this->session->data['guest']['telephone'])) {		 
-				if ((utf8_strlen($this->session->data['guest']['telephone']) < 3) || (utf8_strlen($this->session->data['guest']['telephone']) > 32)) {
-					$data['error_telephone'] = 'Please use phone format +47 99999999';
-				} else if(strpos($this->session->data['guest']['telephone'], '47') != true){
-					$data['error_telephone'] = 'Please use phone format +47 99999999';
-				} 
-		   } else {
-				if ((utf8_strlen($data['phone_number']) < 3) || (utf8_strlen($data['phone_number']) > 32)) {
-					$data['error_telephone'] = 'Please use phone format +47 99999999';
-				} else if(strpos($data['phone_number'], '47') != true){
-					$data['error_telephone'] = 'Please use phone format +47 99999999';
-				}
-		   }
-		   
-		   // Code by Tillit extension end
-		]]>
-      </add>
-    </operation>
-  </file>
-  
-  <file path="catalog/view/theme/default/template/checkout/payment_method.twig">
-    <operation>
-      <search>
-        <![CDATA[{% if text_agree %}]]>
-      </search>
-      <add position="before">
-        <![CDATA[
-			<script>
-				$('input[type=radio][name=payment_method]').change(function() {
-					if (this.value == 'tillit') {
-					
-						$('#button-payment-method').prop("disabled", true);
-
-						// Validation of Tillit start
-						{% if merchant_key == '' %}
-							alert('Tillit Merchant Short Name seems empty. Please contact Support!!!');
-							return;
-						{% endif %}
-						
-						{% if error_telephone != '' %}
-							alert('{{ error_telephone }}');
-							return;
-						{% endif %}
-						
-						// Validation of Tillit end
-
-						{% if payment_mode == 'production' %}
-							var tillit_api_url = 'https://api.tillit.ai/v1/';
-						{% endif %}
-						{% if payment_mode == 'development' %}
-							var tillit_api_url = 'https://test.api.tillit.ai/v1/';
-						{% endif %}
-						{% if payment_mode == 'staging' %}
-							var tillit_api_url = 'https://staging.api.tillit.ai/v1/';
-						{% endif %}
-						
-						var jsonBody = '{"merchant_short_name":"{{ merchant_key }}","gross_amount":"{{ gross_amount }}", "buyer":{"company":{"company_name":"{{ company_name }}", "country_prefix":"{{ country_prefix }}","organization_number":"919501847"},"representative":{"email":"{{ email }}","first_name":"{{ first_name }}","last_name":"{{ last_name }}","phone_number":"{{ phone_number }}"}},"currency":"NOK","merchant_id":"{{ merchant_key }}","line_items":[{"name":"Cart","description":"","gross_amount":"{{ gross_amount }}","net_amount":"{{ gross_amount }}","discount_amount":"0","tax_amount":"0.00","tax_class_name":"VAT 0.00%","tax_rate":"0.000000","unit_price":"{{ gross_amount }}","quantity":1,"quantity_unit":"item", "image_url":"","product_page_url":"","type":"PHYSICAL","details":{"categories":[],"barcodes":[]}}]}';
-
-						$.ajax({
-							url: tillit_api_url + 'order_intent?client=oc&client_v=0.0.1',
-							dataType: 'json',
-							method: 'POST',
-							headers: { 'Content-Type': 'application/json; charset=utf-8', 'Accept-Language' : 'en_US','X-API-Key' : '{{api_key}}' },
-							xhrFields: {withCredentials: true},
-							data: jsonBody,
-							success: function(json) {
-								console.log(json);
-								if (json['approved']==true) {  				
-									var order_intent_id = json['id'];
-									var tracking_id = json['tracking_id'];
-									
-									if(order_intent_id){
-										$('#button-payment-method').prop("disabled", false);
-									}else {
-										$('#button-payment-method').prop("disabled", true);
-									}
-									$.ajax({
-										url:'index.php?route=checkout/payment_method/setorder_intent&order_intent_id='+order_intent_id,
-										dataType: 'GET',
-										success: function(json) {
-										
-										}
-									});
-								}					
-							},
-							error: function(xhr, ajaxOptions, thrownError) {
-								alert(thrownError + "\r\n" + xhr.statusText + "\r\n" + xhr.responseText);
-							}
-						});
-					}
-					$('#button-payment-method').prop("disabled", false);
-				});
-			</script>
-		]]>
-      </add>
-    </operation>
-  </file>
 </modification>

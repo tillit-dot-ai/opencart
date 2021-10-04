@@ -1,6 +1,44 @@
 <?php
 class ControllerExtensionPaymentTillit extends Controller {
 	private $error = array();
+	public function install() {
+
+		$this->db->query("CREATE TABLE IF NOT EXISTS `" . DB_PREFIX . "tillit_order` (
+			`tillit_order_id` int(11) NOT NULL AUTO_INCREMENT,
+			`order_id` int(11) NOT NULL,
+			`id` varchar(128) NOT NULL,
+			`merchant_reference` varchar(128) NOT NULL,
+			`state` varchar(128) NOT NULL,
+			`status` varchar(128) NOT NULL,
+			`day_on_invoice` varchar(32) NOT NULL,
+			`invoice_url` text NOT NULL,
+			PRIMARY KEY (`tillit_order_id`),
+			KEY `customer_id` (`order_id`)
+		) ENGINE=MyISAM AUTO_INCREMENT=1 DEFAULT CHARSET=utf8");
+
+		$customer_col = $this->db->query("DESCRIBE `" . DB_PREFIX . "customer`");
+		$fileds = array();
+        foreach ($customer_col->rows as $column) {
+            $fileds[] = $column['Field'];
+        }
+        if (!in_array('account_type', $fileds)) {
+			$this->db->query("ALTER TABLE `" . DB_PREFIX . "customer` ADD `account_type` VARCHAR(32) NOT NULL AFTER `date_added`");
+        }
+
+        $address_col = $this->db->query("DESCRIBE `" . DB_PREFIX . "address`");
+		$fileds = array();
+        foreach ($address_col->rows as $column) {	
+            $fileds[] = $column['Field'];
+        }
+        if (!in_array('company_id', $fileds)) {
+			$this->db->query("ALTER TABLE `" . DB_PREFIX . "address` ADD `company_id` VARCHAR(32) NOT NULL AFTER `company`");
+        }
+		
+	}
+
+	public function uninstall() {
+		$this->db->query("DROP TABLE `" . DB_PREFIX . "tillit_order`");
+	}
 
 	public function index() {
 		$this->load->language('extension/payment/tillit');
@@ -115,73 +153,62 @@ class ControllerExtensionPaymentTillit extends Controller {
 		}
 
 
-		if (isset($this->request->post['payment_tillit_canceled_reversal_status_id'])) {
-			$data['payment_tillit_canceled_reversal_status_id'] = $this->request->post['payment_tillit_canceled_reversal_status_id'];
+		if (isset($this->request->post['payment_tillit_verified_status_id'])) {
+			$data['payment_tillit_verified_status_id'] = $this->request->post['payment_tillit_verified_status_id'];
+		} elseif($this->config->get('payment_tillit_verified_status_id')) {
+			$data['payment_tillit_verified_status_id'] = $this->config->get('payment_tillit_verified_status_id');
 		} else {
-			$data['payment_tillit_canceled_reversal_status_id'] = $this->config->get('payment_tillit_canceled_reversal_status_id');
+			$data['payment_tillit_verified_status_id'] = 2;
 		}
 
-		if (isset($this->request->post['payment_tillit_completed_status_id'])) {
-			$data['payment_tillit_completed_status_id'] = $this->request->post['payment_tillit_completed_status_id'];
+		if (isset($this->request->post['payment_tillit_unverified_status_id'])) {
+			$data['payment_tillit_unverified_status_id'] = $this->request->post['payment_tillit_unverified_status_id'];
+		} elseif($this->config->get('payment_tillit_unverified_status_id')) {
+			$data['payment_tillit_unverified_status_id'] = $this->config->get('payment_tillit_unverified_status_id');
 		} else {
-			$data['payment_tillit_completed_status_id'] = $this->config->get('payment_tillit_completed_status_id');
-		}
-
-		if (isset($this->request->post['payment_tillit_denied_status_id'])) {
-			$data['payment_tillit_denied_status_id'] = $this->request->post['payment_tillit_denied_status_id'];
-		} else {
-			$data['payment_tillit_denied_status_id'] = $this->config->get('payment_tillit_denied_status_id');
-		}
-
-		if (isset($this->request->post['payment_tillit_expired_status_id'])) {
-			$data['payment_tillit_expired_status_id'] = $this->request->post['payment_tillit_expired_status_id'];
-		} else {
-			$data['payment_tillit_expired_status_id'] = $this->config->get('payment_tillit_expired_status_id');
+			$data['payment_tillit_unverified_status_id'] = 1;
 		}
 
 		if (isset($this->request->post['payment_tillit_failed_status_id'])) {
 			$data['payment_tillit_failed_status_id'] = $this->request->post['payment_tillit_failed_status_id'];
-		} else {
+		} elseif($this->config->get('payment_tillit_failed_status_id')) {
 			$data['payment_tillit_failed_status_id'] = $this->config->get('payment_tillit_failed_status_id');
+		} else {
+			$data['payment_tillit_failed_status_id'] = 10;
 		}
 
-		if (isset($this->request->post['payment_tillit_pending_status_id'])) {
-			$data['payment_tillit_pending_status_id'] = $this->request->post['payment_tillit_pending_status_id'];
+		if (isset($this->request->post['payment_tillit_canceled_status_id'])) {
+			$data['payment_tillit_canceled_status_id'] = $this->request->post['payment_tillit_canceled_status_id'];
+		} elseif($this->config->get('payment_tillit_canceled_status_id')) {
+			$data['payment_tillit_canceled_status_id'] = $this->config->get('payment_tillit_canceled_status_id');
 		} else {
-			$data['payment_tillit_pending_status_id'] = $this->config->get('payment_tillit_pending_status_id');
-		}
-
-		if (isset($this->request->post['payment_tillit_processed_status_id'])) {
-			$data['payment_tillit_processed_status_id'] = $this->request->post['payment_tillit_processed_status_id'];
-		} else {
-			$data['payment_tillit_processed_status_id'] = $this->config->get('payment_tillit_processed_status_id');
+			$data['payment_tillit_canceled_status_id'] = 7;
 		}
 
 		if (isset($this->request->post['payment_tillit_refunded_status_id'])) {
 			$data['payment_tillit_refunded_status_id'] = $this->request->post['payment_tillit_refunded_status_id'];
-		} else {
+		} elseif($this->config->get('payment_tillit_refunded_status_id')) {
 			$data['payment_tillit_refunded_status_id'] = $this->config->get('payment_tillit_refunded_status_id');
+		} else {
+			$data['payment_tillit_refunded_status_id'] = 11;
 		}
 
-		if (isset($this->request->post['payment_tillit_reversed_status_id'])) {
-			$data['payment_tillit_reversed_status_id'] = $this->request->post['payment_tillit_reversed_status_id'];
+		if (isset($this->request->post['payment_tillit_shipped_status_id'])) {
+			$data['payment_tillit_shipped_status_id'] = $this->request->post['payment_tillit_shipped_status_id'];
+		} elseif($this->config->get('payment_tillit_shipped_status_id')) {
+			$data['payment_tillit_shipped_status_id'] = $this->config->get('payment_tillit_shipped_status_id');
 		} else {
-			$data['payment_tillit_reversed_status_id'] = $this->config->get('payment_tillit_reversed_status_id');
+			$data['payment_tillit_shipped_status_id'] = 3;
 		}
 
-		if (isset($this->request->post['payment_tillit_voided_status_id'])) {
-			$data['payment_tillit_voided_status_id'] = $this->request->post['payment_tillit_voided_status_id'];
+		if (isset($this->request->post['payment_tillit_delivered_status_id'])) {
+			$data['payment_tillit_delivered_status_id'] = $this->request->post['payment_tillit_delivered_status_id'];
+		} elseif($this->config->get('payment_tillit_delivered_status_id')) {
+			$data['payment_tillit_delivered_status_id'] = $this->config->get('payment_tillit_delivered_status_id');
 		} else {
-			$data['payment_tillit_voided_status_id'] = $this->config->get('payment_tillit_voided_status_id');
+			$data['payment_tillit_delivered_status_id'] = 5;
 		}
 		
-		
-		if (isset($this->request->post['payment_tillit_order_status_id'])) {
-			$data['payment_tillit_order_status_id'] = $this->request->post['payment_tillit_order_status_id'];
-		} else {
-			$data['payment_tillit_order_status_id'] = $this->config->get('payment_tillit_order_status_id');
-		}
-
 		$this->load->model('localisation/order_status');
 
 		$data['order_statuses'] = $this->model_localisation_order_status->getOrderStatuses();
@@ -198,8 +225,16 @@ class ControllerExtensionPaymentTillit extends Controller {
 
 		if (isset($this->request->post['payment_tillit_status'])) {
 			$data['payment_tillit_status'] = $this->request->post['payment_tillit_status'];
-		} else {
+		} elseif($this->config->get('payment_tillit_status')) {
 			$data['payment_tillit_status'] = $this->config->get('payment_tillit_status');
+		}else{
+			$data['payment_tillit_status'] = 1;
+		}
+
+		if (isset($this->request->post['payment_tillit_debug'])) {
+			$data['payment_tillit_debug'] = $this->request->post['payment_tillit_debug'];
+		} else {
+			$data['payment_tillit_debug'] = $this->config->get('payment_tillit_debug');
 		}
 
 		if (isset($this->request->post['payment_tillit_sort_order'])) {
@@ -222,5 +257,88 @@ class ControllerExtensionPaymentTillit extends Controller {
 
 
 		return !$this->error;
+	}
+
+	public function history() {
+		$this->load->language('extension/payment/tillit');
+
+		if (isset($this->request->get['order_id'])) {
+			$order_id = (int)$this->request->get['order_id'];
+		} else {
+			$order_id = 0;
+		}
+
+		if (isset($this->request->get['order_status_id'])) {
+			$order_status_id = (int)$this->request->get['order_status_id'];
+		} else {
+			$order_status_id = 0;
+		}
+		
+		$this->load->model('extension/payment/tillit');
+        $tillit_order_info = $this->model_extension_payment_tillit->getTillitOrderPaymentData($order_id);
+
+        if($tillit_order_info && isset($tillit_order_info['id'])){
+			if($order_status_id == $this->config->get('payment_tillit_canceled_status_id')){
+				$response = $this->module->setTillitPaymentRequest('/v1/order/' . $tillit_order_info['id'] . '/cancel', [], 'POST');
+				if (!isset($response)) {
+					$message = sprintf('Could not update status to CANCELLED, please check with Tillit admin for id %s', $tillit_order_info['id']);
+				}
+
+	            $response = $this->module->setTillitPaymentRequest('/v1/order/' . $tillit_order_info['id'], [], 'GET');
+                if (isset($response['state']) && $response['state'] == 'CANCELLED') {
+                    $payment_data = array(
+                        'id' => $response['id'],
+		                'merchant_reference' => $response['merchant_reference'],
+		                'state' => $response['state'],
+		                'status' => $response['status'],
+		                'day_on_invoice' => $this->config->get('payment_tillit_invoice_days'),
+		                'invoice_url' => $response['invoice_url'],
+                    );
+                    $this->model_extension_payment_tillit->setTillitOrderPaymentData($order_id, $payment_data);
+                    $message = 'Order updated to CANCELLED status in Tillit dashboard.';
+                }
+			} elseif($order_status_id == $this->config->get('payment_tillit_shipped_status_id')){
+				$response = $this->module->setTillitPaymentRequest('/v1/order/' . $tillit_order_info['id'] . '/fulfilled', [], 'POST');
+				if (!isset($response)) {
+	                $message = sprintf('Could not update status to FULFILLED, please check with Tillit admin for id %s', $tillit_order_info['id']);
+	            }
+
+	            $response = $this->module->setTillitPaymentRequest('/v1/order/' . $tillit_order_info['id'], [], 'GET');
+                if (isset($response['state']) && $response['state'] == 'FULFILLED') {
+                    $payment_data = array(
+                        'id' => $response['id'],
+		                'merchant_reference' => $response['merchant_reference'],
+		                'state' => $response['state'],
+		                'status' => $response['status'],
+		                'day_on_invoice' => $this->config->get('payment_tillit_invoice_days'),
+		                'invoice_url' => $response['invoice_url'],
+                    );
+                    $this->model_extension_payment_tillit->setTillitOrderPaymentData($order_id, $payment_data);
+                    $message = 'Order updated to FULFILLED status in Tillit dashboard.';
+                }
+	            
+			} elseif($order_status_id == $this->config->get('payment_tillit_delivered_status_id')){
+				$response = $this->module->setTillitPaymentRequest('/v1/order/' . $tillit_order_info['id'] . '/delivered', [], 'POST');
+				if (!isset($response)) {
+	                $message = sprintf('Could not update status to DELIVERED, please check with Tillit admin for id %s', $tillit_order_info['id']);
+	            }
+	            $response = $this->module->setTillitPaymentRequest('/v1/order/' . $tillit_order_info['id'], [], 'GET');
+                if (isset($response['state']) && $response['state'] == 'DELIVERED') {
+                    $payment_data = array(
+                        'id' => $response['id'],
+		                'merchant_reference' => $response['merchant_reference'],
+		                'state' => $response['state'],
+		                'status' => $response['status'],
+		                'day_on_invoice' => $this->config->get('payment_tillit_invoice_days'),
+		                'invoice_url' => $response['invoice_url'],
+                    );
+                    $this->model_extension_payment_tillit->setTillitOrderPaymentData($order_id, $payment_data);
+                    $message = 'Order updated to DELIVERED status in Tillit dashboard.';
+                }
+			}
+
+		}
+
+		$this->response->setOutput($message);
 	}
 }
