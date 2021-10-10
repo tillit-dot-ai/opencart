@@ -10,6 +10,7 @@ class ModelExtensionPaymentTillit extends Model {
 		} else {
 			return false;
 		}
+	}
     
 	
 	public function setTillitOrderPaymentData($order_id, $payment_data)

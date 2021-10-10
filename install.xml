@@ -2,8 +2,8 @@
 <modification>
   <name>Tillit Payment Gateway API</name>
   <code>tillit_default</code>
-  <version>2.0</version>
-  <author>Gang</author>
+  <version>1.0.0</version>
+  <author>Tillit As</author>
   <link>http://www.tillit.ai</link>
   <file path="system/library/cart/customer.php">
   <operation error="log">
@@ -72,7 +72,7 @@
     </operation>
   </file>
   <file path="catalog/view/theme/default/template/account/register.twig">
-  <operation error="log">
+    <operation error="log">
       <search>
         <![CDATA[{% for custom_field in custom_fields %}]]>
       </search>
@@ -99,6 +99,33 @@
             </div>
           </div>{% endif %}
     ]]>
+      </add>
+    </operation>
+    <operation error="log">
+      <search>
+        <![CDATA[{{ footer }}]]>
+      </search>
+      <add position="before">
+        <![CDATA[
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/17.0.8/css/intlTelInput.css" />
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/17.0.8/js/intlTelInput.min.js"></script>
+        <script type="text/javascript">
+        $(document).ready(function() {
+            var billingPhoneInput;
+            let billingPhoneInputField = document.querySelector("#input-telephone");
+            billingPhoneInput = window.intlTelInput(billingPhoneInputField, {
+                utilsScript: "https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/17.0.8/js/utils.js"
+            })
+            if ($('#input-payment-telephone')) {
+                billingPhoneInput.setNumber($('#input-telephone').val());
+            }
+        });
+        </script>
+        <style type="text/css">
+        .iti--allow-dropdown{display: block;}
+        .iti__selected-flag{height: 35px;}
+        </style>
+      ]]>
       </add>
     </operation>
   </file>
@@ -155,6 +182,33 @@
             </div>
           </div>{% endif %}
     ]]>
+      </add>
+    </operation>
+    <operation error="log">
+      <search>
+        <![CDATA[{{ footer }}]]>
+      </search>
+      <add position="before">
+        <![CDATA[
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/17.0.8/css/intlTelInput.css" />
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/17.0.8/js/intlTelInput.min.js"></script>
+        <script type="text/javascript">
+        $(document).ready(function() {
+            var billingPhoneInput;
+            let billingPhoneInputField = document.querySelector("#input-telephone");
+            billingPhoneInput = window.intlTelInput(billingPhoneInputField, {
+                utilsScript: "https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/17.0.8/js/utils.js"
+            })
+            if ($('#input-payment-telephone')) {
+                billingPhoneInput.setNumber($('#input-telephone').val());
+            }
+        });
+        </script>
+        <style type="text/css">
+        .iti--allow-dropdown{display: block;}
+        .iti__selected-flag{height: 35px;}
+        </style>
+      ]]>
       </add>
     </operation>
   </file>
@@ -287,13 +341,16 @@
       </search>
       <add position="before">
         <![CDATA[{% if tillit_status %}<script type="text/javascript"><!--
+      $( window ).load(function() {
+        $('#input-country').change();
+      });
     $('#input-country').on('change', function() {
       let united_kingdom_id = 222;
       let norway = 160;
       if(united_kingdom_id == $(this).val() || norway == $(this).val()) {
-        var $div = $('#input-zone').closest('div[class^="form-group"]').removeClass( "required");
+        var $div = $('#input-company').closest('div[class^="form-group"]').addClass( "required");
       }else {
-        var $div = $('#input-zone').closest('div[class^="form-group"]').addClass( "required");
+        var $div = $('#input-company').closest('div[class^="form-group"]').removeClass( "required");
       }
     });
     $('#input-company').on('keyup', function() {
@@ -427,13 +484,17 @@
         <![CDATA[$('input[name=\'payment_address\']').on('change', function() {]]>
       </search>
       <add position="before">
-        <![CDATA[{% if tillit_status %}$('#input-payment-country').on('change', function() {
+        <![CDATA[{% if tillit_status %}
+    $( window ).load(function() {
+      $('#input-payment-country').change();
+    });
+    $('#input-payment-country').on('change', function() {
       let united_kingdom_id = 222;
       let norway = 160;
       if(united_kingdom_id == $(this).val() || norway == $(this).val()) {
-        var $div = $('#input-payment-zone').closest('div[class^="form-group"]').removeClass( "required");
+        var $div = $('#input-payment-company').closest('div[class^="form-group"]').addClass( "required");
       }else {
-        var $div = $('#input-payment-zone').closest('div[class^="form-group"]').addClass( "required");
+        var $div = $('#input-payment-company').closest('div[class^="form-group"]').removeClass( "required");
       }
     });
     $('#input-payment-company').on('keyup', function() {
@@ -537,13 +598,17 @@
         <![CDATA[$('#collapse-shipping-address select[name=\'country_id\']').on('change', function() {]]>
       </search>
       <add position="before">
-        <![CDATA[{% if tillit_status %}$('#input-shipping-country').on('change', function() {
+        <![CDATA[{% if tillit_status %}
+    $( window ).load(function() {
+      $('#input-shipping-country').change();
+    });
+    $('#input-shipping-country').on('change', function() {
       let united_kingdom_id = 222;
       let norway = 160;
       if(united_kingdom_id == $(this).val() || norway == $(this).val()) {
-        var $div = $('#input-shipping-zone').closest('div[class^="form-group"]').removeClass( "required");
+        var $div = $('#input-shipping-company').closest('div[class^="form-group"]').addClass( "required");
       }else {
-        var $div = $('#input-shipping-zone').closest('div[class^="form-group"]').addClass( "required");
+        var $div = $('#input-shipping-company').closest('div[class^="form-group"]').removeClass( "required");
       }
     });
     $('#input-shipping-company').on('keyup', function() {
@@ -705,20 +770,37 @@
       </search>
       <add position="before">
         <![CDATA[{% if tillit_status %}
-    $('input[name=\'account_type\']').on('change', function() {
-      if($(this).val() == 'personal'){
-        $div = $('#input-payment-company-id').closest('div[class^="form-group"]').hide();
-      } else {
-        $div = $('#input-payment-company-id').closest('div[class^="form-group"]').show();
-      }
+        countryTel();
+    $( window ).load(function() {
+      $('#input-payment-country').change();
+      $('input[name=\'account_type\']').change();
     });
     $('#input-payment-country').on('change', function() {
       let united_kingdom_id = 222;
       let norway = 160;
       if(united_kingdom_id == $(this).val() || norway == $(this).val()) {
-        var $div = $('#input-payment-zone').closest('div[class^="form-group"]').removeClass( "required");
+        var $div = $('#input-payment-company').closest('div[class^="form-group"]').addClass( "required");
+        if($('input[name=\'account_type\']:checked').val() == 'personal'){
+          var $div = $('#input-payment-company').closest('div[class^="form-group"]').removeClass( "required");
+        }
       }else {
-        var $div = $('#input-payment-zone').closest('div[class^="form-group"]').addClass( "required");
+        var $div = $('#input-payment-company').closest('div[class^="form-group"]').removeClass( "required");
+      }
+    });
+    $('input[name=\'account_type\']').on('change', function() {
+      if($(this).val() == 'personal'){
+        $div = $('#input-payment-company-id').closest('div[class^="form-group"]').hide();
+        var $div = $('#input-payment-company').closest('div[class^="form-group"]').removeClass( "required");
+      } else {
+        $div = $('#input-payment-company-id').closest('div[class^="form-group"]').show();
+        var $div = $('#input-payment-company').closest('div[class^="form-group"]').addClass( "required");
+        let united_kingdom_id = 222;
+        let norway = 160;
+        if(united_kingdom_id == $('#input-payment-country').val() || norway == $('#input-payment-country').val()) {
+          var $div = $('#input-payment-company').closest('div[class^="form-group"]').addClass( "required");
+        }else {
+          var $div = $('#input-payment-company').closest('div[class^="form-group"]').removeClass( "required");
+        }
       }
     });
     $('#input-payment-company').on('keyup', function() {
@@ -871,20 +953,37 @@
       </search>
       <add position="before">
         <![CDATA[{% if tillit_status %}
-    $('input[name=\'account_type\']').on('change', function() {
-      if($(this).val() == 'personal'){
-        $div = $('#input-payment-company-id').closest('div[class^="form-group"]').hide();
-      } else {
-        $div = $('#input-payment-company-id').closest('div[class^="form-group"]').show();
-      }
+        countryTel();
+    $( window ).load(function() {
+      $('#input-payment-country').change();
+      $('input[name=\'account_type\']').change();
     });
     $('#input-payment-country').on('change', function() {
       let united_kingdom_id = 222;
       let norway = 160;
       if(united_kingdom_id == $(this).val() || norway == $(this).val()) {
-        var $div = $('#input-payment-zone').closest('div[class^="form-group"]').removeClass( "required");
+        var $div = $('#input-payment-company').closest('div[class^="form-group"]').addClass( "required");
+        if($('input[name=\'account_type\']:checked').val() == 'personal'){
+          var $div = $('#input-payment-company').closest('div[class^="form-group"]').removeClass( "required");
+        }
       }else {
-        var $div = $('#input-payment-zone').closest('div[class^="form-group"]').addClass( "required");
+        var $div = $('#input-payment-company').closest('div[class^="form-group"]').removeClass( "required");
+      }
+    });
+    $('input[name=\'account_type\']').on('change', function() {
+      if($(this).val() == 'personal'){
+        $div = $('#input-payment-company-id').closest('div[class^="form-group"]').hide();
+        var $div = $('#input-payment-company').closest('div[class^="form-group"]').removeClass( "required");
+      } else {
+        $div = $('#input-payment-company-id').closest('div[class^="form-group"]').show();
+        var $div = $('#input-payment-company').closest('div[class^="form-group"]').addClass( "required");
+        let united_kingdom_id = 222;
+        let norway = 160;
+        if(united_kingdom_id == $('#input-payment-country').val() || norway == $('#input-payment-country').val()) {
+          var $div = $('#input-payment-company').closest('div[class^="form-group"]').addClass( "required");
+        }else {
+          var $div = $('#input-payment-company').closest('div[class^="form-group"]').removeClass( "required");
+        }
       }
     });
     $('#input-payment-company').on('keyup', function() {
@@ -954,16 +1053,173 @@
         <![CDATA[#collapse-shipping-address input[type=\'text\'], #collapse-shipping-address input[type=\'hidden\']]]>
       </add>
     </operation>
+    <operation error="log">
+      <search>
+        <![CDATA[{{ footer }}]]>
+      </search>
+      <add position="before">
+        <![CDATA[
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/17.0.8/css/intlTelInput.css" />
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/17.0.8/js/intlTelInput.min.js"></script>
+        <script type="text/javascript">
+        function countryTel() {
+            var billingPhoneInput;
+            let billingPhoneInputField = document.querySelector("#input-payment-telephone");
+            billingPhoneInput = window.intlTelInput(billingPhoneInputField, {
+                utilsScript: "https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/17.0.8/js/utils.js"
+            })
+            if ($('#input-payment-telephone')) {
+                billingPhoneInput.setNumber($('#input-payment-telephone').val());
+            }
+        }
+        </script>
+        <style type="text/css">
+        .iti--allow-dropdown{display: block;}
+        .iti__selected-flag{height: 35px;}
+        </style> 
+      ]]>
+      </add>
+    </operation>
+  </file>
+  <file path="admin/controller/sale/order.php">
+    <operation error="log">
+      <search>
+        <![CDATA[$data['payment_method'] = $order_info['payment_method'];]]>
+      </search>
+      <add position="after">
+        <![CDATA[$data['payment_code'] = $order_info['payment_code'];]]>
+      </add>
+    </operation>
   </file>
   <file path="admin/view/template/sale/order_info.twig">
     <operation error="log">
       <search>
-        <![CDATA[$('#history').load('index.php?route=sale/order/history&user_token={{ user_token }}&order_id={{ order_id }}');]]>
+        <![CDATA[<div id="history"></div>]]>
       </search>
       <add position="before">
-        <![CDATA[$('#history').load('index.php?route=extension/payment/tillit/history&user_token={{ user_token }}&order_id={{ order_id }}&order_status_id={{ order_id }}' + encodeURIComponent($('select[name=\'order_status_id\']').val()));]]>
+        <![CDATA[<div id="tillit"></div>]]>
+      </add>
+    </operation>
+    <operation error="log">
+      <search>
+        <![CDATA[$('#button-history').on('click', function() {]]>
+      </search>
+      <add position="before">
+        <![CDATA[{% if payment_code == 'tillit' %}$('#tillit').load('index.php?route=extension/payment/tillit/history&user_token={{ user_token }}&order_id={{ order_id }}&order_status_id=' + encodeURIComponent($('select[name=\'order_status_id\']').val()));{% endif %}]]>
+      </add>
+    </operation>
+    <operation error="log">
+      <search>
+        <![CDATA[$('#button-history').on('click', function() {]]>
+      </search>
+      <add position="after">
+        <![CDATA[{% if payment_code == 'tillit' %}
+      $.ajax({
+        url: 'index.php?route=extension/payment/tillit/updateOrder&user_token={{ user_token }}&order_id={{ order_id }}',
+        type: 'post',
+        dataType: 'json',
+        data: 'order_status_id=' + encodeURIComponent($('select[name=\'order_status_id\']').val()) + '&notify=' + ($('input[name=\'notify\']').prop('checked') ? 1 : 0) + '&override=' + ($('input[name=\'override\']').prop('checked') ? 1 : 0) + '&append=' + ($('input[name=\'append\']').prop('checked') ? 1 : 0) + '&comment=' + encodeURIComponent($('textarea[name=\'comment\']').val()),
+        beforeSend: function() {
+          $('#button-history').button('loading');
+        },
+        complete: function() {
+          $('#button-history').button('reset');
+        },
+        success: function(json) {
+          $('.alert-dismissible').remove();
+          if (json['error']) {
+            $('#tillit').before('<div class="alert alert-danger alert-dismissible"><i class="fa fa-exclamation-circle"></i> ' + json['error'] + ' <button type="button" class="close" data-dismiss="alert">&times;</button></div>');
+          }
+          if (json['success']) {          
+            $('#tillit').load('index.php?route=extension/payment/tillit/history&user_token={{ user_token }}&order_id={{ order_id }}');
+            callHostory();
+          }
+        },
+        error: function(xhr, ajaxOptions, thrownError) {
+          alert(thrownError + "\r\n" + xhr.statusText + "\r\n" + xhr.responseText);
+        }
+      });
+    });
+    function callHostory(){
+      $.ajax({
+        url: '{{ catalog }}index.php?route=api/order/history&api_token={{ api_token }}&store_id={{ store_id }}&order_id={{ order_id }}',
+        type: 'post',
+        dataType: 'json',
+        data: 'order_status_id=' + encodeURIComponent($('select[name=\'order_status_id\']').val()) + '&notify=' + ($('input[name=\'notify\']').prop('checked') ? 1 : 0) + '&override=' + ($('input[name=\'override\']').prop('checked') ? 1 : 0) + '&append=' + ($('input[name=\'append\']').prop('checked') ? 1 : 0) + '&comment=' + encodeURIComponent($('textarea[name=\'comment\']').val()),
+        beforeSend: function() {
+          $('#button-history').button('loading');
+        },
+        complete: function() {
+          $('#button-history').button('reset');
+        },
+        success: function(json) {
+          $('.alert-dismissible').remove();
+
+          if (json['error']) {
+            $('#history').before('<div class="alert alert-danger alert-dismissible"><i class="fa fa-exclamation-circle"></i> ' + json['error'] + ' <button type="button" class="close" data-dismiss="alert">&times;</button></div>');
+          }
+
+          if (json['success']) {
+            $('#history').load('index.php?route=sale/order/history&user_token={{ user_token }}&order_id={{ order_id }}');
+            {% if payment_code == 'tillit' %}$('#tillit').load('index.php?route=extension/payment/tillit/history&user_token={{ user_token }}&order_id={{ order_id }}&order_status_id=' + encodeURIComponent($('select[name=\'order_status_id\']').val()));{% endif %}
+            $('#history').before('<div class="alert alert-success alert-dismissible"><i class="fa fa-check-circle"></i> ' + json['success'] + ' <button type="button" class="close" data-dismiss="alert">&times;</button></div>');
+
+            $('textarea[name=\'comment\']').val('');
+          }
+        },
+        error: function(xhr, ajaxOptions, thrownError) {
+          alert(thrownError + "\r\n" + xhr.statusText + "\r\n" + xhr.responseText);
+        }
+      });
+    }
+    $('#button-xyz').on('click', function() {
+    {% endif %}]]>
       </add>
     </operation>
   </file>
-  
+  <file path="admin/view/template/sale/order_form.twig">
+    <operation error="log">
+      <search>
+        <![CDATA[$('#tab-payment input[name=\'postcode\']').closest('.form-group').removeClass('required');]]>
+      </search>
+      <add position="after" offset="1">
+        <![CDATA[var country = $('#tab-payment select[name=\'country_id\']').val();
+      if(country == 160 || country == 222){
+        json['zone'] = '';
+      }]]>
+      </add>
+    </operation>
+    <operation error="log">
+      <search>
+        <![CDATA[$('#tab-shipping input[name=\'postcode\']').closest('.form-group').removeClass('required');]]>
+      </search>
+      <add position="after" offset="1">
+        <![CDATA[var country = $('#tab-shipping select[name=\'country_id\']').val();
+      if(country == 160 || country == 222){
+        json['zone'] = '';
+      }]]>
+      </add>
+    </operation>
+    <operation error="log">
+      <search>
+        <![CDATA[if (json['order_id']) {]]>
+      </search>
+      <add position="before">
+        <![CDATA[if (json['success']) {
+        $.ajax({
+          url: 'index.php?route=extension/payment/tillit/editOrder&user_token={{ user_token }}&order_id='+$('input[name=\'order_id\']').val(),
+          type: 'post',
+          crossDomain: true,
+          success: function(message) {
+            $('#content > .container-fluid').prepend(message);
+          },
+          error: function(xhr, ajaxOptions, thrownError) {
+            alert(thrownError + "\r\n" + xhr.statusText + "\r\n" + xhr.responseText);
+          }
+        });
+      }]]>
+      </add>
+    </operation>
+    
+  </file>
 </modification>

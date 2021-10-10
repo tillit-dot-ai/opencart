@@ -2,7 +2,7 @@
 class ControllerExtensionPaymentTillit extends Controller { 
 
   public function index() {
-    $this->load->model('checkout/order');
+	  $this->load->model('checkout/order');
 
     if(!isset($this->session->data['order_id'])) {
       return false;
@@ -39,7 +39,7 @@ class ControllerExtensionPaymentTillit extends Controller {
     }
 
     $data['action'] = $this->url->link('extension/payment/tillit/send', '', true);
-  
+	
     return $this->load->view('extension/payment/tillit', $data);
   }
 
@@ -124,46 +124,45 @@ class ControllerExtensionPaymentTillit extends Controller {
       }
 
       $rate = ($product['tax']*100)/$product['price'];
-      $product = array(
-        'name' => $product['name'],
-        'description' => utf8_substr(trim(strip_tags(html_entity_decode($product_info['description'], ENT_QUOTES, 'UTF-8'))), 0, 100),
-        'gross_amount' => strval($this->currency->format(($product['price']+$product['tax'])*$product['quantity'], $order_info['currency_code'], $order_info['currency_value'], false)),
-        'net_amount' => strval($this->currency->format($product['price'], $order_info['currency_code'], $order_info['currency_value'], false)),
-        'discount_amount' => '0.00',
-        'tax_amount' => strval($this->currency->format($product['tax']*$product['quantity'], $order_info['currency_code'], $order_info['currency_value'], false)),
-        'tax_class_name' => 'VAT ' . strval($this->getTillitRoundAmount($rate)) . '%',
-        'tax_rate' => strval($this->getTillitRoundAmount($rate)),
-        'unit_price' => strval($this->currency->format($product['price'], $order_info['currency_code'], $order_info['currency_value'], false)),
-        'quantity' => '2',
-        'quantity_unit' => $product['quantity'],
-        'image_url' => $image,
-        'product_page_url' => $this->url->link('product/product', 'product_id=' . $product['product_id']),
-        'type' => 'PHYSICAL',
-        'details' => array(
-            'brand' => $product_info['manufacturer'],
-            'barcodes' => array(
-                array(
-                    'type' => 'SKU',
-                    'value' => $product_info['ean']
-                ),
-                array(
-                    'type' => 'UPC',
-                    'value' => $product_info['upc']
-                ),
-            ),
+      
+      $product_item['name'] = $product['name'];
+      $product_item['description'] = utf8_substr(trim(strip_tags(html_entity_decode($product_info['description'], ENT_QUOTES, 'UTF-8'))), 0, 100);
+      $product_item['gross_amount'] = strval($this->currency->format(($product['price']+$product['tax'])*$product['quantity'], $order_info['currency_code'], $order_info['currency_value'], false));
+      $product_item['net_amount'] = strval($this->currency->format($product['price']*$product['quantity'], $order_info['currency_code'], $order_info['currency_value'], false));
+      $product_item['discount_amount'] = '0.00';
+      $product_item['tax_amount'] = strval($this->currency->format($product['tax']*$product['quantity'], $order_info['currency_code'], $order_info['currency_value'], false));
+      $product_item['tax_class_name'] = 'VAT ' . strval($this->getTillitRoundAmount($rate)) . '%';
+      $product_item['tax_rate'] = strval($this->getTillitRoundAmount($rate));
+      $product_item['unit_price'] = strval($this->currency->format($product['price'], $order_info['currency_code'], $order_info['currency_value'], false));
+      $product_item['quantity'] = $product['quantity'];
+      $product_item['quantity_unit'] = 'pcs';
+      $product_item['image_url'] = $image;
+      $product_item['product_page_url'] = $this->url->link('product/product', 'product_id=' . $product['product_id']);
+      $product_item['type'] = 'PHYSICAL';
+      $product_item['details'] = array(
+        'brand' => $product_info['manufacturer'],
+        'barcodes' => array(
+          array(
+            'type' => 'SKU',
+            'value' => $product_info['ean']
+          ),
+          array(
+            'type' => 'UPC',
+            'value' => $product_info['upc']
+          ),
         ),
-       );
+      );
 
-      $product['details']['categories'] = [];
+      $product_item['details']['categories'] = [];
       if ($categories) {
         $this->load->model('catalog/category');
           foreach ($categories as $category) {
             $category_info = $this->model_catalog_category->getCategory($category['category_id']);
-              $product['details']['categories'][] = $category_info['name'];
+              $product_item['details']['categories'][] = $category_info['name'];
           }
       }
 
-      $items[] = $product;
+      $items[] = $product_item;
     }
 
     $totals = $this->model_checkout_order->getOrderTotals($order_id);
@@ -465,17 +464,21 @@ class ControllerExtensionPaymentTillit extends Controller {
 
   public function setTillitPaymentRequest($endpoint, $payload = [], $method = 'POST'){
 
-    if($this->config->get('payment_tillit_payment_mode')=='production'){
+    if($this->config->get('payment_tillit_mode')){
       $base_url = 'https://api.tillit.ai';
-    } elseif($this->config->get('payment_tillit_payment_mode')=='development'){
-      $base_url = 'https://test.api.tillit.ai/v1/';
-    } elseif($this->config->get('payment_tillit_payment_mode')=='staging'){
-      $base_url = 'https://staging.api.tillit.ai';      
+    } else {
+      $base_url = 'https://test.api.tillit.ai';
     }
+
+    if (strpos($_SERVER['SERVER_NAME'], 'tillit.ai') !== false) {
+      $base_url = $this->config->get('payment_tillit_staging_server');
+    }
+
+    $base_url = 'https://staging.api.tillit.ai';
 
     if ($method == "POST" || $method == "PUT") {
         $url = $base_url.$endpoint;
-        $url = $url . '?client=OC&client_v=3.0';
+        $url = $url . '?client=OC&client_v=1.0';
         $params = empty($payload) ? '' : json_encode($payload);
         $headers = [
             'Content-Type: application/json; charset=utf-8',
@@ -500,7 +503,7 @@ class ControllerExtensionPaymentTillit extends Controller {
         curl_close($ch);
     } else {
         $url = $base_url.$endpoint;
-        $url = $url . '?client=OC&client_v=3.0';
+        $url = $url . '?client=OC&client_v=1.0';
         $headers = [
             'Content-Type: application/json; charset=utf-8',
             'X-API-Key:' . $this->config->get('payment_tillit_api_key'),
@@ -559,8 +562,8 @@ class ControllerExtensionPaymentTillit extends Controller {
       }
   }
 
-  public function confirm() {   
-    if (isset($this->request->get['order_id'])) {
+  public function confirm() {		
+		if (isset($this->request->get['order_id'])) {
       $order_id = $this->request->get['order_id'];
     } elseif(isset($this->session->data['order_id'])) {
       $order_id = $this->session->data['order_id'];
@@ -617,7 +620,7 @@ class ControllerExtensionPaymentTillit extends Controller {
     } else {
       $this->session->data['error'] = 'Unable to find the requested order, please contact store owner.';
     }
-  }
+	}
 
   public function cancel() {   
     if (isset($this->request->get['order_id'])) {
@@ -744,15 +747,17 @@ class ControllerExtensionPaymentTillit extends Controller {
 
     if ($company_id) {
       $base_url = '';
-      if($this->config->get('payment_tillit_payment_mode')=='production'){
-        $base_url = 'https://api.tillit.ai/v1/';
-      } elseif($this->config->get('payment_tillit_payment_mode')=='development'){
-        $base_url = 'https://test.api.tillit.ai/v1/';
-      } elseif($this->config->get('payment_tillit_payment_mode')=='staging'){
-        $base_url = 'https://staging.api.tillit.ai/v1/';      
+      if($this->config->get('payment_tillit_mode')){
+        $base_url = 'https://api.tillit.ai';
+      } else {
+        $base_url = 'https://test.api.tillit.ai';
+      }
+
+      if (strpos($_SERVER['SERVER_NAME'], 'tillit.ai') !== false) {
+        $base_url = $this->config->get('payment_tillit_staging_server');
       }
       
-      $url = $base_url.'company/'.$company_id.'/address';
+      $url = $base_url.'/v1/company/'.$company_id.'/address';
 
       $headers = [
         'Content-Type: application/json; charset=utf-8',

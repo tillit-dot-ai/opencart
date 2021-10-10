@@ -113,7 +113,7 @@
         				</div>
       			  </div>
               <div class="form-group">
-                <label class="col-sm-2 control-label" for="input-debug">{{ entry_debug }}</label>
+                <label class="col-sm-2 control-label" for="input-debug"><span data-toggle="tooltip" title="{{ help_debug }}">{{ entry_debug }}</span></label>
                 <div class="col-sm-10">
                   <select name="payment_tillit_debug" id="input-debug" class="form-control">
                     {% if payment_tillit_debug %}
@@ -148,30 +148,28 @@
               </div>
             </div>
             <div class="tab-pane" id="tab-other">
-              <div class="form-group required">
-                <label class="col-sm-2 control-label" for="input-canceled-reversal-status"><span data-toggle="tooltip" title="{{ help_paymentmode_tag }}">{{ entry_payment_mode }}</span></label>
+              <div class="form-group {% if not tillit_host %}hidden{% endif %}">
+                <label class="col-sm-2 control-label" for="input-staging-server">{{ entry_staging_server }}</label>
                 <div class="col-sm-10">
-                  <select name="payment_tillit_payment_mode" id="input-canceled-reversal-status" class="form-control">		  
-                  {% if payment_tillit_payment_mode == 'production' %}
-        				  <option value="production" selected="selected">{{ entry_payment_production }}</option>
-        					<option value="staging">{{ entry_payment_staging }}</option>
-        					<option value="development">{{ entry_payment_development }}</option>
-        					
-        					{% elseif payment_tillit_payment_mode == 'development' %}
-        					 <option value="production">{{ entry_payment_production }}</option>
-        					<option value="development" selected="selected">{{ entry_payment_development }}</option>
-        					<option value="staging">{{ entry_payment_staging }}</option>
-        					
+                  <input type="text" name="payment_tillit_staging_server" value="{{ payment_tillit_staging_server }}" placeholder="{{ payment_tillit_staging_server }}" id="input-staging-server" class="form-control"/>
+                </div>
+              </div>
+              <div class="form-group required {% if tillit_host %}hidden{% endif %}">
+                <label class="col-sm-2 control-label" for="input-mode"><span data-toggle="tooltip" title="{{ help_paymentmode_tag }}">{{ entry_mode }}</span></label>
+                <div class="col-sm-10">
+                  <select name="payment_tillit_mode" id="input-mode" class="form-control">		  
+                  {% if payment_tillit_mode %}
+        				  <option value="1" selected="selected">{{ text_production }}</option>
+        					<option value="0">{{ text_test }}</option>
         					{% else %}
-        					 <option value="production">{{ entry_payment_production }}</option>
-        					<option value="development">{{ entry_payment_development }}</option>
-        					<option value="staging" selected="selected">{{ entry_payment_staging }}</option>
+        					<option value="1">{{ text_production }}</option>
+        					<option value="0" selected="selected">{{ text_test }}</option>
         					{% endif %}
                   </select> 
                 </div>
               </div>
               <div class="form-group required">
-                <label class="col-sm-2 control-label" for="input-completed-status"><span data-toggle="tooltip" title="{{ help_autocomplete_tag }}">{{ entry_company_name_auto_complete }}</span></label>
+                <label class="col-sm-2 control-label" for="input-completed-status"><span data-toggle="tooltip" title="{{ help_autocomplete_tag }}">{{ entry_company_auto_complete }}</span></label>
                 <div class="col-sm-10">
                   <select name="payment_tillit_company_name" id="input-completed-status" class="form-control">
           				  {% if payment_tillit_company_name == '0'%}	  
@@ -185,7 +183,7 @@
                 </div>
               </div>
 			        <div class="form-group required">
-                <label class="col-sm-2 control-label" for="input-completed-status"><span data-toggle="tooltip" title="{{ help_orgcomplete_tag }}">{{ entry_company_name_org_complete }}</span></label>
+                <label class="col-sm-2 control-label" for="input-completed-status"><span data-toggle="tooltip" title="{{ help_orgcomplete_tag }}">{{ entry_company_org_complete }}</span></label>
                 <div class="col-sm-10">
                   <select name="payment_tillit_company_org" id="input-completed-status" class="form-control">
 				          {% if payment_tillit_company_org == '0'%}
