@@ -3,7 +3,7 @@
   <name>Tillit Payment Gateway API</name>
   <code>tillit_default</code>
   <version>1.0.0</version>
-  <author>Tillit As</author>
+  <author>TillitAs</author>
   <link>http://www.tillit.ai</link>
   <file path="system/library/cart/customer.php">
   <operation error="log">
@@ -114,7 +114,8 @@
             var billingPhoneInput;
             let billingPhoneInputField = document.querySelector("#input-telephone");
             billingPhoneInput = window.intlTelInput(billingPhoneInputField, {
-                utilsScript: "https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/17.0.8/js/utils.js"
+              preferredCountries: ["no", "gb"],
+              utilsScript: "https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/17.0.8/js/utils.js"
             })
             if ($('#input-payment-telephone')) {
                 billingPhoneInput.setNumber($('#input-telephone').val());
@@ -197,7 +198,8 @@
             var billingPhoneInput;
             let billingPhoneInputField = document.querySelector("#input-telephone");
             billingPhoneInput = window.intlTelInput(billingPhoneInputField, {
-                utilsScript: "https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/17.0.8/js/utils.js"
+              preferredCountries: ["no", "gb"],
+              utilsScript: "https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/17.0.8/js/utils.js"
             })
             if ($('#input-payment-telephone')) {
                 billingPhoneInput.setNumber($('#input-telephone').val());
@@ -1066,7 +1068,8 @@
             var billingPhoneInput;
             let billingPhoneInputField = document.querySelector("#input-payment-telephone");
             billingPhoneInput = window.intlTelInput(billingPhoneInputField, {
-                utilsScript: "https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/17.0.8/js/utils.js"
+              preferredCountries: ["no", "gb"],
+              utilsScript: "https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/17.0.8/js/utils.js"
             })
             if ($('#input-payment-telephone')) {
                 billingPhoneInput.setNumber($('#input-payment-telephone').val());

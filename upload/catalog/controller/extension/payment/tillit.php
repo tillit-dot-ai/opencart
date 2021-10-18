@@ -2,7 +2,7 @@
 class ControllerExtensionPaymentTillit extends Controller { 
 
   public function index() {
-	  $this->load->model('checkout/order');
+    $this->load->model('checkout/order');
 
     if(!isset($this->session->data['order_id'])) {
       return false;
@@ -20,15 +20,15 @@ class ControllerExtensionPaymentTillit extends Controller {
 
     if ($tillit_err) {
       if ($this->checkTillitStartsWithString($tillit_err, '1 validation error for CreateOrderIntentRequestSchema: buyer -> company -> organization_number')) {
-          $error = $this->language->get('error_company');
+        $error = $this->language->get('error_company');
       } else if ($this->checkTillitStartsWithString($tillit_err, '1 validation error for CreateOrderIntentRequestSchema: buyer -> representative -> phone_number')) {
-          $error = $this->language->get('error_telephone');
+        $error = $this->language->get('error_telephone');
       } else if ($this->checkTillitStartsWithString($tillit_err, 'Minimum Payment using Tillit')) {
-          $error = $this->language->get('error_minimum');
+        $error = $this->language->get('error_minimum');
       } else if ($this->checkTillitStartsWithString($tillit_err, 'Maximum Payment using Tillit')) {
-          $error = $this->language->get('error_maximum');
+        $error = $this->language->get('error_maximum');
       } else {
-          $error = $tillit_err;
+        $error = $tillit_err;
       }
       $data['approval'] = false;
       $data['message'] = sprintf($this->language->get('text_unverify'), $error);
@@ -57,18 +57,18 @@ class ControllerExtensionPaymentTillit extends Controller {
     $this->load->model('checkout/order');
 
     if (isset($response['result']) && $response['result'] === 'failure') {
-        $this->session->data['error'] = $this->language->get('error_gateway').' response: '.$response['result'];
-        $json['redirect'] = $this->url->link('checkout/checkout');
+      $this->session->data['error'] = $this->language->get('error_gateway').' response: '.$response['result'];
+      $json['redirect'] = $this->url->link('checkout/checkout');
     }
 
     if (isset($response['response']['code']) && ($response['response']['code'] === 401 || $response['response']['code'] === 403)) {
-        $this->session->data['error'] = $this->language->get('error_gateway').' response_code: '.$response['response']['code'];
-        $json['redirect'] = $this->url->link('checkout/checkout');
+      $this->session->data['error'] = $this->language->get('error_gateway').' response_code: '.$response['response']['code'];
+      $json['redirect'] = $this->url->link('checkout/checkout');
     }
 
     if (isset($response['response']['code']) && $response['response']['code'] === 400) {
-        $this->session->data['error'] = $this->language->get('error_gateway').' response_code: 400';
-        $json['redirect'] = $this->url->link('checkout/checkout');
+      $this->session->data['error'] = $this->language->get('error_gateway').' response_code: 400';
+      $json['redirect'] = $this->url->link('checkout/checkout');
     }
 
     if (isset($response['error_message']) && $response['error_message']) {
@@ -77,17 +77,17 @@ class ControllerExtensionPaymentTillit extends Controller {
     }
 
     if (isset($response['response']['code']) && $response['response']['code'] >= 400) {
-        $this->session->data['error'] = 'EHF Invoice is not available for this order.'.' response_code: '.$response['response']['code'];
-        $json['redirect'] = $this->url->link('checkout/checkout');
+      $this->session->data['error'] = 'EHF Invoice is not available for this order.'.' response_code: '.$response['response']['code'];
+      $json['redirect'] = $this->url->link('checkout/checkout');
     }
     if (isset($response['id']) && $response['id']) {
       $payment_data = array(
-          'id' => $response['id'],
-          'merchant_reference' => $response['merchant_reference'],
-          'state' => $response['state'],
-          'status' => $response['status'],
-          'day_on_invoice' => $this->config->get('payment_tillit_invoice_days'),
-          'invoice_url' => $response['invoice_url'],
+        'id' => $response['id'],
+        'merchant_reference' => $response['merchant_reference'],
+        'state' => $response['state'],
+        'status' => $response['status'],
+        'day_on_invoice' => $this->config->get('payment_tillit_invoice_days'),
+        'invoice_url' => $response['invoice_url'],
       );
       $this->load->model('extension/payment/tillit');
       $this->model_extension_payment_tillit->setTillitOrderPaymentData($this->session->data['order_id'], $payment_data);
@@ -158,7 +158,7 @@ class ControllerExtensionPaymentTillit extends Controller {
         $this->load->model('catalog/category');
           foreach ($categories as $category) {
             $category_info = $this->model_catalog_category->getCategory($category['category_id']);
-              $product_item['details']['categories'][] = $category_info['name'];
+            $product_item['details']['categories'][] = $category_info['name'];
           }
       }
 
@@ -170,20 +170,20 @@ class ControllerExtensionPaymentTillit extends Controller {
     foreach ($totals as $total) {
       if ($total['code'] == 'shipping') {
         $array = array(
-            'name' => 'Shipping',
-            'description' => $total['title'],
-            'gross_amount' => strval($this->currency->format($total['value'], $order_info['currency_code'], $order_info['currency_value'], false)),
-            'net_amount' => strval($this->currency->format($total['value'], $order_info['currency_code'], $order_info['currency_value'], false)),
-            'discount_amount' => '0.00',
-            'tax_amount' => '0.00',
-            'tax_class_name' => '',
-            'tax_rate' => '0.00',
-            'unit_price' => strval($this->currency->format($total['value'], $order_info['currency_code'], $order_info['currency_value'], false)),
-            'quantity' => 1,
-            'quantity_unit' => 'sc', // shipment charge
-            'image_url' => '',
-            'product_page_url' => '',
-            'type' => 'SHIPPING_FEE'
+          'name' => 'Shipping',
+          'description' => $total['title'],
+          'gross_amount' => strval($this->currency->format($total['value'], $order_info['currency_code'], $order_info['currency_value'], false)),
+          'net_amount' => strval($this->currency->format($total['value'], $order_info['currency_code'], $order_info['currency_value'], false)),
+          'discount_amount' => '0.00',
+          'tax_amount' => '0.00',
+          'tax_class_name' => '',
+          'tax_rate' => '0.00',
+          'unit_price' => strval($this->currency->format($total['value'], $order_info['currency_code'], $order_info['currency_value'], false)),
+          'quantity' => 1,
+          'quantity_unit' => 'sc', // shipment charge
+          'image_url' => '',
+          'product_page_url' => '',
+          'type' => 'SHIPPING_FEE'
         );
 
         $items[] = $array;
@@ -191,20 +191,20 @@ class ControllerExtensionPaymentTillit extends Controller {
 
       if ($total['code'] == 'coupon') {
         $array = array(
-            'name' => 'Discount',
-            'description' => $total['title'],
-            'gross_amount' => strval($this->currency->format($total['value'], $order_info['currency_code'], $order_info['currency_value'], false)),
-            'net_amount' => strval($this->currency->format($total['value'], $order_info['currency_code'], $order_info['currency_value'], false)),
-            'discount_amount' => '0.00',
-            'tax_amount' => '0.00',
-            'tax_class_name' => '',
-            'tax_rate' => '0%',
-            'unit_price' => strval($this->currency->format($total['value'], $order_info['currency_code'], $order_info['currency_value'], false)),
-            'quantity' => 1,
-            'quantity_unit' => 'item', // shipment charge
-            'image_url' => '',
-            'product_page_url' => '',
-            'type' => 'PHYSICAL'
+          'name' => 'Discount',
+          'description' => $total['title'],
+          'gross_amount' => strval($this->currency->format($total['value'], $order_info['currency_code'], $order_info['currency_value'], false)),
+          'net_amount' => strval($this->currency->format($total['value'], $order_info['currency_code'], $order_info['currency_value'], false)),
+          'discount_amount' => '0.00',
+          'tax_amount' => '0.00',
+          'tax_class_name' => '',
+          'tax_rate' => '0%',
+          'unit_price' => strval($this->currency->format($total['value'], $order_info['currency_code'], $order_info['currency_value'], false)),
+          'quantity' => 1,
+          'quantity_unit' => 'item', // shipment charge
+          'image_url' => '',
+          'product_page_url' => '',
+          'type' => 'PHYSICAL'
         );
 
         $items[] = $array;
@@ -230,53 +230,51 @@ class ControllerExtensionPaymentTillit extends Controller {
       'tax_amount' => '0',
       'tax_rate' => '0.00',
       'buyer' => array(
-          'company' => array(
-              'company_name' => $order_info['payment_company'],
-              'country_prefix' => $payment_country_info['iso_code_2'],
-              'organization_number' => $company_id,
-              'website' => '',
-          ),
-          'representative' => array(
-              'email' => $order_info['email'],
-              'first_name' => $order_info['firstname'],
-              'last_name' => $order_info['lastname'],
-              'phone_number' => $order_info['telephone'],
-          ),
+        'company' => array(
+          'company_name' => $order_info['payment_company'],
+          'country_prefix' => $payment_country_info['iso_code_2'],
+          'organization_number' => $company_id,
+          'website' => '',
+        ),
+        'representative' => array(
+          'email' => $order_info['email'],
+          'first_name' => $order_info['firstname'],
+          'last_name' => $order_info['lastname'],
+          'phone_number' => $order_info['telephone'],
+        ),
       ),
       'merchant_additional_info' => $order_info['store_name'],
       'merchant_order_id' => strval($order_info['order_id']),
       'merchant_reference' => strval($order_reference),
       'merchant_urls' => array(
-          'merchant_confirmation_url' => $this->url->link('extension/payment/tillit/confirm&order_id=' . $order_info['order_id']),
-          'merchant_cancel_order_url' => $this->url->link('extension/payment/tillit/cancel&order_id=' . $order_info['order_id']),
-          'merchant_edit_order_url' => '',
-          'merchant_order_verification_failed_url' => '',
-          'merchant_invoice_url' => '',
-          'merchant_shipping_document_url' => ''
+        'merchant_confirmation_url' => $this->url->link('extension/payment/tillit/confirm&order_id=' . $order_info['order_id']),
+        'merchant_cancel_order_url' => $this->url->link('extension/payment/tillit/cancel&order_id=' . $order_info['order_id']),
+        'merchant_edit_order_url' => '',
+        'merchant_order_verification_failed_url' => '',
+        'merchant_invoice_url' => '',
+        'merchant_shipping_document_url' => ''
       ),
       'billing_address' => array(
-          'city' => $order_info['payment_city'],
-          'country' => $payment_country_info['iso_code_2'],
-          'organization_name' => $order_info['payment_company'],
-          'postal_code' => $order_info['payment_postcode'],
-          'region' => $order_info['payment_zone'],
-          'street_address' => $order_info['payment_address_1'] . $order_info['payment_address_2']
+        'city' => $order_info['payment_city'],
+        'country' => $payment_country_info['iso_code_2'],
+        'organization_name' => $order_info['payment_company'],
+        'postal_code' => $order_info['payment_postcode'],
+        'region' => $order_info['payment_zone'],
+        'street_address' => $order_info['payment_address_1'] . $order_info['payment_address_2']
       ),
       'shipping_address' => array(
-          'city' => $order_info['shipping_city'],
-          'country' => $shipping_country_info['iso_code_2'],
-          'organization_name' => $order_info['shipping_company'],
-          'postal_code' => $order_info['shipping_postcode'],
-          'region' => $order_info['shipping_zone'],
-          'street_address' => $order_info['shipping_address_1'] . $order_info['shipping_address_2']
+        'city' => $order_info['shipping_city'],
+        'country' => $shipping_country_info['iso_code_2'],
+        'organization_name' => $order_info['shipping_company'],
+        'postal_code' => $order_info['shipping_postcode'],
+        'region' => $order_info['shipping_zone'],
+        'street_address' => $order_info['shipping_address_1'] . $order_info['shipping_address_2']
       ),
       'recurring' => false,
       'order_note' => $order_info['comment'],
       'line_items' => $items,
     );
 
-    //echo "<pre>";print_r($request_data);die;
-    
     return $request_data;
   }
 
@@ -312,33 +310,8 @@ class ControllerExtensionPaymentTillit extends Controller {
         'unit_price' => strval($this->getTillitRoundAmount($this->currency->format($product['price'], $order_info['currency_code'], $order_info['currency_value'], false))),
         'quantity' => $product['quantity'],
         'quantity_unit' => 'pcs',
-        //'image_url' => $image,
-        //'product_page_url' => $this->url->link('product/product', 'product_id=' . $product['product_id']),
         'type' => 'PHYSICAL',
-      //   'details' => array(
-      //       'brand' => $product_info['manufacturer'],
-      //       'barcodes' => array(
-      //           array(
-      //               'type' => 'SKU',
-      //               'value' => $product_info['ean']
-      //           ),
-      //           array(
-      //               'type' => 'UPC',
-      //               'value' => $product_info['upc']
-      //           ),
-      //       ),
-      //   ),
-       );
-
-      // $product['details']['categories'] = [];
-      // if ($categories) {
-      //   $this->load->model('catalog/category');
-      //     foreach ($categories as $category) {
-      //       $category_info = $this->model_catalog_category->getCategory($category['category_id']);
-      //         $product['details']['categories'][] = $category_info['name'];
-      //     }
-      // }
-
+      );
       $items[] = $product;
     }
 
@@ -347,48 +320,45 @@ class ControllerExtensionPaymentTillit extends Controller {
     foreach ($totals as $total) {
       if ($total['code'] == 'shipping') {
         $array = array(
-            'name' => 'Shipping',
-            'description' => $total['title'],
-            'gross_amount' => strval($this->getTillitRoundAmount($this->currency->format($total['value'], $order_info['currency_code'], $order_info['currency_value'], false))),
-            'net_amount' => strval($this->getTillitRoundAmount($this->currency->format($total['value'], $order_info['currency_code'], $order_info['currency_value'], false))),
-            'discount_amount' => '0',
-            'tax_amount' => '0',
-            'tax_class_name' => '',
-            'tax_rate' => '0',
-            'unit_price' => strval($this->getTillitRoundAmount($this->currency->format($total['value'], $order_info['currency_code'], $order_info['currency_value'], false))),
-            'quantity' => 1,
-            'quantity_unit' => 'pcs', // shipment charge
-            'image_url' => '',
-            'product_page_url' => '',
-            'type' => 'SHIPPING'
+          'name' => 'Shipping',
+          'description' => $total['title'],
+          'gross_amount' => strval($this->getTillitRoundAmount($this->currency->format($total['value'], $order_info['currency_code'], $order_info['currency_value'], false))),
+          'net_amount' => strval($this->getTillitRoundAmount($this->currency->format($total['value'], $order_info['currency_code'], $order_info['currency_value'], false))),
+          'discount_amount' => '0',
+          'tax_amount' => '0',
+          'tax_class_name' => '',
+          'tax_rate' => '0',
+          'unit_price' => strval($this->getTillitRoundAmount($this->currency->format($total['value'], $order_info['currency_code'], $order_info['currency_value'], false))),
+          'quantity' => 1,
+          'quantity_unit' => 'pcs', // shipment charge
+          'image_url' => '',
+          'product_page_url' => '',
+          'type' => 'SHIPPING'
         );
 
         $items[] = $array;
       }
       if ($total['code'] == 'coupon') {
         $array = array(
-            'name' => 'Discount',
-            'description' => $total['title'],
-            'gross_amount' => strval($this->getTillitRoundAmount($this->currency->format($total['value'], $order_info['currency_code'], $order_info['currency_value'], false))),
-            'net_amount' => strval($this->getTillitRoundAmount($this->currency->format($total['value'], $order_info['currency_code'], $order_info['currency_value'], false))),
-            'discount_amount' => '0.00',
-            'tax_amount' => '0',
-            'tax_class_name' => '',
-            'tax_rate' => '0%',
-            'unit_price' => strval($this->getTillitRoundAmount($this->currency->format($total['value'], $order_info['currency_code'], $order_info['currency_value'], false))),
-            'quantity' => 1,
-            'quantity_unit' => $total['code'], // shipment charge
-            'image_url' => '',
-            'product_page_url' => '',
-            'type' => 'DISCOUNT'
+          'name' => 'Discount',
+          'description' => $total['title'],
+          'gross_amount' => strval($this->getTillitRoundAmount($this->currency->format($total['value'], $order_info['currency_code'], $order_info['currency_value'], false))),
+          'net_amount' => strval($this->getTillitRoundAmount($this->currency->format($total['value'], $order_info['currency_code'], $order_info['currency_value'], false))),
+          'discount_amount' => '0.00',
+          'tax_amount' => '0',
+          'tax_class_name' => '',
+          'tax_rate' => '0%',
+          'unit_price' => strval($this->getTillitRoundAmount($this->currency->format($total['value'], $order_info['currency_code'], $order_info['currency_value'], false))),
+          'quantity' => 1,
+          'quantity_unit' => $total['code'], // shipment charge
+          'image_url' => '',
+          'product_page_url' => '',
+          'type' => 'DISCOUNT'
         );
 
         $items[] = $array;
       }
     }
-
-    //echo "<pre>";print_r($items);die;
-
     return $items;
   }
 
@@ -449,16 +419,14 @@ class ControllerExtensionPaymentTillit extends Controller {
             'product_page_url' => '',
             'type' => 'PHYSICAL',
             'details' => array(
-                'brand' => '',
-                'categories' => [],
-                'barcodes' => [],
+              'brand' => '',
+              'categories' => [],
+              'barcodes' => [],
             ),
           )
         ),
     );
 
-    //echo "<pre>";print_r($request_data);die;
-    
     return $request_data;
   }
 
@@ -474,57 +442,55 @@ class ControllerExtensionPaymentTillit extends Controller {
       $base_url = $this->config->get('payment_tillit_staging_server');
     }
 
-    $base_url = 'https://staging.api.tillit.ai';
-
     if ($method == "POST" || $method == "PUT") {
-        $url = $base_url.$endpoint;
-        $url = $url . '?client=OC&client_v=1.0';
-        $params = empty($payload) ? '' : json_encode($payload);
-        $headers = [
-            'Content-Type: application/json; charset=utf-8',
-            'X-API-Key:' . $this->config->get('payment_tillit_api_key'),
-        ];
-        if ($this->config->get('payment_tillit_debug')) {
-          $this->log->write('TILLIT REQUEST :: IPN URL: ' . $url);
-          $this->log->write('TILLIT REQUEST :: IPN PAYLOAD: ' . $params);
-        }
-        $ch = curl_init();
-        curl_setopt($ch, CURLOPT_URL, $url);
-        curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-        curl_setopt($ch, CURLOPT_TIMEOUT, 60);
-        curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 0);
-        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, 0);
-        curl_setopt($ch, CURLOPT_POST, 1);
-        curl_setopt($ch, CURLOPT_POSTFIELDS, $params);
-        curl_setopt($ch, CURLOPT_CUSTOMREQUEST, $method);
-        $response = curl_exec($ch);
-        curl_getinfo($ch);
-        curl_close($ch);
+      $url = $base_url.$endpoint;
+      $url = $url . '?client=OC&client_v=1.0';
+      $params = empty($payload) ? '' : json_encode($payload);
+      $headers = [
+        'Content-Type: application/json; charset=utf-8',
+        'X-API-Key:' . $this->config->get('payment_tillit_api_key'),
+      ];
+      if ($this->config->get('payment_tillit_debug')) {
+        $this->log->write('TILLIT REQUEST :: IPN URL: ' . $url);
+        $this->log->write('TILLIT REQUEST :: IPN PAYLOAD: ' . $params);
+      }
+      $ch = curl_init();
+      curl_setopt($ch, CURLOPT_URL, $url);
+      curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
+      curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+      curl_setopt($ch, CURLOPT_TIMEOUT, 60);
+      curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 0);
+      curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, 0);
+      curl_setopt($ch, CURLOPT_POST, 1);
+      curl_setopt($ch, CURLOPT_POSTFIELDS, $params);
+      curl_setopt($ch, CURLOPT_CUSTOMREQUEST, $method);
+      $response = curl_exec($ch);
+      curl_getinfo($ch);
+      curl_close($ch);
     } else {
-        $url = $base_url.$endpoint;
-        $url = $url . '?client=OC&client_v=1.0';
-        $headers = [
-            'Content-Type: application/json; charset=utf-8',
-            'X-API-Key:' . $this->config->get('payment_tillit_api_key'),
-        ];
+      $url = $base_url.$endpoint;
+      $url = $url . '?client=OC&client_v=1.0';
+      $headers = [
+        'Content-Type: application/json; charset=utf-8',
+        'X-API-Key:' . $this->config->get('payment_tillit_api_key'),
+      ];
 
-        if ($this->config->get('payment_tillit_debug')) {
-          $this->log->write('TILLIT REQUEST :: IPN URL: ' . $url);
-        }
+      if ($this->config->get('payment_tillit_debug')) {
+        $this->log->write('TILLIT REQUEST :: IPN URL: ' . $url);
+      }
 
-        $ch = curl_init();
-        curl_setopt($ch, CURLOPT_URL, $url);
-        curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-        curl_setopt($ch, CURLOPT_TIMEOUT, 60);
-        curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 0);
-        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, 0);
-        curl_setopt($ch, CURLOPT_CUSTOMREQUEST, $method);
-        $response = curl_exec($ch);
-        
-        curl_getinfo($ch);
-        curl_close($ch);
+      $ch = curl_init();
+      curl_setopt($ch, CURLOPT_URL, $url);
+      curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
+      curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+      curl_setopt($ch, CURLOPT_TIMEOUT, 60);
+      curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 0);
+      curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, 0);
+      curl_setopt($ch, CURLOPT_CUSTOMREQUEST, $method);
+      $response = curl_exec($ch);
+      
+      curl_getinfo($ch);
+      curl_close($ch);
     }
     if ($this->config->get('payment_tillit_debug')) {
       $this->log->write('TILLIT RESPONSE :: ' . $response);
@@ -535,31 +501,31 @@ class ControllerExtensionPaymentTillit extends Controller {
 
   public function checkTillitStartsWithString($string, $startString)
   {
-      $len = strlen($startString);
-      return substr($string, 0, $len) === $startString;
+    $len = strlen($startString);
+    return substr($string, 0, $len) === $startString;
   }
 
   public function getTillitErrorMessage($body)
   {
-      if (!$body) {
-          return 'Something went wrong please contact store owner.';
-      }
+    if (!$body) {
+      return 'Something went wrong please contact store owner.';
+    }
 
-      if (isset($body['response']['code']) && $body['response'] && $body['response']['code'] && $body['response']['code'] >= 400) {
-          return sprintf($this->l('Tillit response code %d'), $body['response']['code']);
-      }
+    if (isset($body['response']['code']) && $body['response'] && $body['response']['code'] && $body['response']['code'] >= 400) {
+      return sprintf($this->l('Tillit response code %d'), $body['response']['code']);
+    }
       
-      if (is_string($body)) {
-          return $body;
-      }
+    if (is_string($body)) {
+      return $body;
+    }
       
-      if(isset($body['error_details']) && $body['error_details']) {
-          return $body['error_details'];
-      }
-      
-      if (isset($body['error_code']) && $body['error_code']) {
-          return $body['error_message'];
-      }
+    if(isset($body['error_details']) && $body['error_details']) {
+      return $body['error_details'];
+    }
+    
+    if (isset($body['error_code']) && $body['error_code']) {
+      return $body['error_message'];
+    }
   }
 
   public function confirm() {		
@@ -575,94 +541,52 @@ class ControllerExtensionPaymentTillit extends Controller {
     $order_info = $this->model_checkout_order->getOrder($order_id);
 
     if($order_info){
-        $this->load->model('extension/payment/tillit');
-        $tillit_order_info = $this->model_extension_payment_tillit->getTillitOrderPaymentData($order_id);
-        if($tillit_order_info && isset($tillit_order_info['id'])){
-            $response = $this->setTillitPaymentRequest('/v1/order/' . $tillit_order_info['id'], [], 'GET');
-            $tillit_err = $this->getTillitErrorMessage($response);
-            if ($tillit_err) {
-                $this->response->redirect($this->url->link('checkout/failure'));
-                $this->model_checkout_order->addOrderHistory($order_id, $this->config->get('payment_tillit_failed_status_id'));
-            }
-
-            if (isset($response['state']) && $response['state'] == 'VERIFIED') {
-              $payment_data = array(
-                'id' => $response['id'],
-                'merchant_reference' => $response['merchant_reference'],
-                'state' => $response['state'],
-                'status' => $response['status'],
-                'day_on_invoice' => $this->config->get('payment_tillit_invoice_days'),
-                'invoice_url' => $response['invoice_url'],
-              );
-              $this->model_extension_payment_tillit->setTillitOrderPaymentData($order_id, $payment_data);
-              $this->model_checkout_order->addOrderHistory($order_id, $this->config->get('payment_tillit_verified_status_id'));
-              $this->response->redirect($this->url->link('checkout/success'));
-            } elseif (isset($response['state']) && $response['state'] == 'UNVERIFIED') {
-              $payment_data = array(
-                'id' => $response['id'],
-                'merchant_reference' => $response['merchant_reference'],
-                'state' => $response['state'],
-                'status' => $response['status'],
-                'day_on_invoice' => $this->config->get('payment_tillit_invoice_days'),
-                'invoice_url' => $response['invoice_url'],
-              );
-              $this->model_extension_payment_tillit->setTillitOrderPaymentData($order_id, $payment_data); 
-              $this->model_checkout_order->addOrderHistory($order_id, $this->config->get('payment_tillit_unverified_status_id'));
-              $this->response->redirect($this->url->link('checkout/success'));
-            } else {
-              $this->model_checkout_order->addOrderHistory($order_id, $this->config->get('payment_tillit_failed_status_id'));
-              $this->response->redirect($this->url->link('checkout/failure'));
-            }
-        } else {
-          $this->session->data['error'] = 'Unable to find the requested order, please try again.';
-          $this->response->redirect($this->url->link('checkout/checkout'));
+      $this->load->model('extension/payment/tillit');
+      $tillit_order_info = $this->model_extension_payment_tillit->getTillitOrderPaymentData($order_id);
+      if($tillit_order_info && isset($tillit_order_info['id'])){
+        $response = $this->setTillitPaymentRequest('/v1/order/' . $tillit_order_info['id'], [], 'GET');
+        $tillit_err = $this->getTillitErrorMessage($response);
+        if ($tillit_err) {
+          $this->response->redirect($this->url->link('checkout/failure'));
+          $this->model_checkout_order->addOrderHistory($order_id, $this->config->get('payment_tillit_failed_status_id'));
         }
+
+        if (isset($response['state']) && $response['state'] == 'VERIFIED') {
+          $payment_data = array(
+            'id' => $response['id'],
+            'merchant_reference' => $response['merchant_reference'],
+            'state' => $response['state'],
+            'status' => $response['status'],
+            'day_on_invoice' => $this->config->get('payment_tillit_invoice_days'),
+            'invoice_url' => $response['invoice_url'],
+          );
+          $this->model_extension_payment_tillit->setTillitOrderPaymentData($order_id, $payment_data);
+          $this->model_checkout_order->addOrderHistory($order_id, $this->config->get('payment_tillit_verified_status_id'));
+          $this->response->redirect($this->url->link('checkout/success'));
+        } elseif (isset($response['state']) && $response['state'] == 'UNVERIFIED') {
+          $payment_data = array(
+            'id' => $response['id'],
+            'merchant_reference' => $response['merchant_reference'],
+            'state' => $response['state'],
+            'status' => $response['status'],
+            'day_on_invoice' => $this->config->get('payment_tillit_invoice_days'),
+            'invoice_url' => $response['invoice_url'],
+          );
+          $this->model_extension_payment_tillit->setTillitOrderPaymentData($order_id, $payment_data); 
+          $this->model_checkout_order->addOrderHistory($order_id, $this->config->get('payment_tillit_unverified_status_id'));
+          $this->response->redirect($this->url->link('checkout/success'));
+        } else {
+          $this->model_checkout_order->addOrderHistory($order_id, $this->config->get('payment_tillit_failed_status_id'));
+          $this->response->redirect($this->url->link('checkout/failure'));
+        }
+      } else {
+        $this->session->data['error'] = 'Unable to find the requested order, please try again.';
+        $this->response->redirect($this->url->link('checkout/checkout'));
+      }
     } else {
       $this->session->data['error'] = 'Unable to find the requested order, please contact store owner.';
     }
 	}
-
-  public function cancel() {   
-    if (isset($this->request->get['order_id'])) {
-      $order_id = $this->request->get['order_id'];
-    } elseif(isset($this->session->data['order_id'])) {
-      $order_id = $this->session->data['order_id'];
-    } else {
-      $order_id = 0 ;
-    }
-  
-    $this->load->model('checkout/order');
-    $order_info = $this->model_checkout_order->getOrder($order_id);
-
-    if($order_info){
-        $this->load->model('extension/payment/tillit');
-        $tillit_order_info = $this->model_extension_payment_tillit->getTillitOrderPaymentData($order_id);
-        if($tillit_order_info && isset($tillit_order_info['id'])){
-            $response = $this->setTillitPaymentRequest('/v1/order/' . $tillit_order_id . '/cancel', [], 'POST');
-            if (isset($response['state']) && $response['state'] == 'VERIFIED') {
-              $payment_data = array(
-                'id' => $response['id'],
-                'merchant_reference' => $response['merchant_reference'],
-                'state' => $response['state'],
-                'status' => $response['status'],
-                'day_on_invoice' => $this->config->get('payment_tillit_invoice_days'),
-                'invoice_url' => $response['invoice_url'],
-              );
-              $this->model_extension_payment_tillit->setTillitOrderPaymentData($order_id, $payment_data);
-              $this->model_checkout_order->addOrderHistory($order_id, $this->config->get('payment_tillit_verified_status_id'));
-              $this->response->redirect($this->url->link('checkout/success'));
-            } else {
-              $this->model_checkout_order->addOrderHistory($order_id, $this->config->get('payment_tillit_failed_status_id'));
-              $this->response->redirect($this->url->link('checkout/checkout'));
-            }
-        } else {
-          $this->session->data['error'] = 'Unable to find the requested order, please try again.';
-          $this->response->redirect($this->url->link('checkout/checkout'));
-        }
-    } else {
-      $this->session->data['error'] = 'Unable to find the requested order, please contact store owner.';
-    }
-  }
 
   public function company() {
 
@@ -682,7 +606,6 @@ class ControllerExtensionPaymentTillit extends Controller {
       $company = false;
     }
 
-    //Norway(160),UK(222)
     $countryList = array(222,160);
 
     if ($company && in_array($country_id, $countryList)) {
@@ -733,7 +656,7 @@ class ControllerExtensionPaymentTillit extends Controller {
   }
 
   public function address() {
- 
+
     $this->load->language('extension/payment/tillit');
 
     $json = array();
