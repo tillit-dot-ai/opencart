@@ -3,7 +3,7 @@
   <name>Two Payment Gateway API</name>
   <code>two_default</code>
   <version>1.1.0</version>
-  <author>TwoAs</author>
+  <author>Two</author>
   <link>http://www.tillit.ai</link>
   <file path="system/library/cart/customer.php">
   <operation error="log">
