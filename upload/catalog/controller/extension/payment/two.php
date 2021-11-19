@@ -1,5 +1,5 @@
 <?php
-class ControllerExtensionPaymentTillit extends Controller { 
+class ControllerExtensionPaymentTwo extends Controller { 
 
   public function index() {
     $this->load->model('checkout/order');
@@ -8,27 +8,27 @@ class ControllerExtensionPaymentTillit extends Controller {
       return false;
     }
 
-    $this->load->language('extension/payment/tillit');
+    $this->load->language('extension/payment/two');
 
     $order_info = $this->model_checkout_order->getOrder($this->session->data['order_id']);
 
-    $paymentdata = $this->getTillitIntentOrderData($this->session->data['order_id']);
+    $paymentdata = $this->getTwoIntentOrderData($this->session->data['order_id']);
     
-    $response = $this->setTillitPaymentRequest("/v1/order_intent", $paymentdata, 'POST');
+    $response = $this->setTwoPaymentRequest("/v1/order_intent", $paymentdata, 'POST');
     
-    $tillit_err = $this->getTillitErrorMessage($response);
+    $two_err = $this->getTwoErrorMessage($response);
 
-    if ($tillit_err) {
-      if ($this->checkTillitStartsWithString($tillit_err, '1 validation error for CreateOrderIntentRequestSchema: buyer -> company -> organization_number')) {
+    if ($two_err) {
+      if ($this->checkTwoStartsWithString($two_err, '1 validation error for CreateOrderIntentRequestSchema: buyer -> company -> organization_number')) {
         $error = $this->language->get('error_company');
-      } else if ($this->checkTillitStartsWithString($tillit_err, '1 validation error for CreateOrderIntentRequestSchema: buyer -> representative -> phone_number')) {
+      } else if ($this->checkTwoStartsWithString($two_err, '1 validation error for CreateOrderIntentRequestSchema: buyer -> representative -> phone_number')) {
         $error = $this->language->get('error_telephone');
-      } else if ($this->checkTillitStartsWithString($tillit_err, 'Minimum Payment using Tillit')) {
+      } else if ($this->checkTwoStartsWithString($two_err, 'Minimum Payment using Two')) {
         $error = $this->language->get('error_minimum');
-      } else if ($this->checkTillitStartsWithString($tillit_err, 'Maximum Payment using Tillit')) {
+      } else if ($this->checkTwoStartsWithString($two_err, 'Maximum Payment using Two')) {
         $error = $this->language->get('error_maximum');
       } else {
-        $error = $tillit_err;
+        $error = $two_err;
       }
       $data['approval'] = false;
       $data['message'] = sprintf($this->language->get('text_unverify'), $error);
@@ -38,16 +38,16 @@ class ControllerExtensionPaymentTillit extends Controller {
       $data['message'] = sprintf($this->language->get('text_verify'), $order_info['payment_company']);
     }
 
-    $data['action'] = $this->url->link('extension/payment/tillit/send', '', true);
+    $data['action'] = $this->url->link('extension/payment/two/send', '', true);
 	
-    return $this->load->view('extension/payment/tillit', $data);
+    return $this->load->view('extension/payment/two', $data);
   }
 
   public function send($value='')
   {
     $json = array();
-    $paymentdata = $this->getTillitNewOrderData($this->session->data['order_id']);
-    $response = $this->setTillitPaymentRequest('/v1/order', $paymentdata, 'POST');
+    $paymentdata = $this->getTwoNewOrderData($this->session->data['order_id']);
+    $response = $this->setTwoPaymentRequest('/v1/order', $paymentdata, 'POST');
 
     if (!isset($response)) {
       $this->session->data['error'] = $this->language->get('error_gateway');
@@ -86,11 +86,11 @@ class ControllerExtensionPaymentTillit extends Controller {
         'merchant_reference' => $response['merchant_reference'],
         'state' => $response['state'],
         'status' => $response['status'],
-        'day_on_invoice' => $this->config->get('payment_tillit_invoice_days'),
+        'day_on_invoice' => $this->config->get('payment_two_invoice_days'),
         'invoice_url' => $response['invoice_url'],
       );
-      $this->load->model('extension/payment/tillit');
-      $this->model_extension_payment_tillit->setTillitOrderPaymentData($this->session->data['order_id'], $payment_data);
+      $this->load->model('extension/payment/two');
+      $this->model_extension_payment_two->setTwoOrderPaymentData($this->session->data['order_id'], $payment_data);
       $json['redirect'] = $response['payment_url'];
     }
 
@@ -99,7 +99,7 @@ class ControllerExtensionPaymentTillit extends Controller {
 
   }
 
-  public function getTillitNewOrderData($order_id)
+  public function getTwoNewOrderData($order_id)
   {
     $order_reference = round(microtime(1) * 1000);
     $tracking_number = '';
@@ -131,8 +131,8 @@ class ControllerExtensionPaymentTillit extends Controller {
       $product_item['net_amount'] = strval($this->currency->format($product['price']*$product['quantity'], $order_info['currency_code'], $order_info['currency_value'], false));
       $product_item['discount_amount'] = '0.00';
       $product_item['tax_amount'] = strval($this->currency->format($product['tax']*$product['quantity'], $order_info['currency_code'], $order_info['currency_value'], false));
-      $product_item['tax_class_name'] = 'VAT ' . strval($this->getTillitRoundAmount($rate)) . '%';
-      $product_item['tax_rate'] = strval($this->getTillitRoundAmount($rate));
+      $product_item['tax_class_name'] = 'VAT ' . strval($this->getTwoRoundAmount($rate)) . '%';
+      $product_item['tax_rate'] = strval($this->getTwoRoundAmount($rate));
       $product_item['unit_price'] = strval($this->currency->format($product['price'], $order_info['currency_code'], $order_info['currency_value'], false));
       $product_item['quantity'] = $product['quantity'];
       $product_item['quantity_unit'] = 'pcs';
@@ -226,7 +226,7 @@ class ControllerExtensionPaymentTillit extends Controller {
       'currency' => $order_info['currency_code'],
       'discount_amount' => '0.00',
       'discount_rate' => '0.00',
-      'invoice_type' => $this->config->get('payment_tillit_choose_product'),
+      'invoice_type' => $this->config->get('payment_two_choose_product'),
       'tax_amount' => '0',
       'tax_rate' => '0.00',
       'buyer' => array(
@@ -247,8 +247,8 @@ class ControllerExtensionPaymentTillit extends Controller {
       'merchant_order_id' => strval($order_info['order_id']),
       'merchant_reference' => strval($order_reference),
       'merchant_urls' => array(
-        'merchant_confirmation_url' => $this->url->link('extension/payment/tillit/confirm&order_id=' . $order_info['order_id']),
-        'merchant_cancel_order_url' => $this->url->link('extension/payment/tillit/cancel&order_id=' . $order_info['order_id']),
+        'merchant_confirmation_url' => $this->url->link('extension/payment/two/confirm&order_id=' . $order_info['order_id']),
+        'merchant_cancel_order_url' => $this->url->link('extension/payment/two/cancel&order_id=' . $order_info['order_id']),
         'merchant_edit_order_url' => '',
         'merchant_order_verification_failed_url' => '',
         'merchant_invoice_url' => '',
@@ -278,7 +278,7 @@ class ControllerExtensionPaymentTillit extends Controller {
     return $request_data;
   }
 
-  public function getTillitProductItems($order_id)
+  public function getTwoProductItems($order_id)
   {
     $this->load->model('checkout/order');
     $this->load->model('catalog/product');
@@ -301,13 +301,13 @@ class ControllerExtensionPaymentTillit extends Controller {
       $product = array(
         'name' => $product['name'],
         'description' => $product['name'],
-        'gross_amount' => strval($this->getTillitRoundAmount($this->currency->format(($product['price']+$product['tax'])*$product['quantity'], $order_info['currency_code'], $order_info['currency_value'], false))),
-        'net_amount' => strval($this->getTillitRoundAmount($this->currency->format($product['total'], $order_info['currency_code'], $order_info['currency_value'], false))),
+        'gross_amount' => strval($this->getTwoRoundAmount($this->currency->format(($product['price']+$product['tax'])*$product['quantity'], $order_info['currency_code'], $order_info['currency_value'], false))),
+        'net_amount' => strval($this->getTwoRoundAmount($this->currency->format($product['total'], $order_info['currency_code'], $order_info['currency_value'], false))),
         'discount_amount' => '0',
-        'tax_amount' => strval($this->getTillitRoundAmount($this->currency->format($product['tax']*$product['quantity'], $order_info['currency_code'], $order_info['currency_value'], false))),
-        'tax_class_name' => 'VAT ' . strval($this->getTillitRoundAmount($rate)) . '%',
-        'tax_rate' => strval($this->getTillitRoundAmount($rate)),
-        'unit_price' => strval($this->getTillitRoundAmount($this->currency->format($product['price'], $order_info['currency_code'], $order_info['currency_value'], false))),
+        'tax_amount' => strval($this->getTwoRoundAmount($this->currency->format($product['tax']*$product['quantity'], $order_info['currency_code'], $order_info['currency_value'], false))),
+        'tax_class_name' => 'VAT ' . strval($this->getTwoRoundAmount($rate)) . '%',
+        'tax_rate' => strval($this->getTwoRoundAmount($rate)),
+        'unit_price' => strval($this->getTwoRoundAmount($this->currency->format($product['price'], $order_info['currency_code'], $order_info['currency_value'], false))),
         'quantity' => $product['quantity'],
         'quantity_unit' => 'pcs',
         'type' => 'PHYSICAL',
@@ -322,13 +322,13 @@ class ControllerExtensionPaymentTillit extends Controller {
         $array = array(
           'name' => 'Shipping',
           'description' => $total['title'],
-          'gross_amount' => strval($this->getTillitRoundAmount($this->currency->format($total['value'], $order_info['currency_code'], $order_info['currency_value'], false))),
-          'net_amount' => strval($this->getTillitRoundAmount($this->currency->format($total['value'], $order_info['currency_code'], $order_info['currency_value'], false))),
+          'gross_amount' => strval($this->getTwoRoundAmount($this->currency->format($total['value'], $order_info['currency_code'], $order_info['currency_value'], false))),
+          'net_amount' => strval($this->getTwoRoundAmount($this->currency->format($total['value'], $order_info['currency_code'], $order_info['currency_value'], false))),
           'discount_amount' => '0',
           'tax_amount' => '0',
           'tax_class_name' => '',
           'tax_rate' => '0',
-          'unit_price' => strval($this->getTillitRoundAmount($this->currency->format($total['value'], $order_info['currency_code'], $order_info['currency_value'], false))),
+          'unit_price' => strval($this->getTwoRoundAmount($this->currency->format($total['value'], $order_info['currency_code'], $order_info['currency_value'], false))),
           'quantity' => 1,
           'quantity_unit' => 'pcs', // shipment charge
           'image_url' => '',
@@ -342,13 +342,13 @@ class ControllerExtensionPaymentTillit extends Controller {
         $array = array(
           'name' => 'Discount',
           'description' => $total['title'],
-          'gross_amount' => strval($this->getTillitRoundAmount($this->currency->format($total['value'], $order_info['currency_code'], $order_info['currency_value'], false))),
-          'net_amount' => strval($this->getTillitRoundAmount($this->currency->format($total['value'], $order_info['currency_code'], $order_info['currency_value'], false))),
+          'gross_amount' => strval($this->getTwoRoundAmount($this->currency->format($total['value'], $order_info['currency_code'], $order_info['currency_value'], false))),
+          'net_amount' => strval($this->getTwoRoundAmount($this->currency->format($total['value'], $order_info['currency_code'], $order_info['currency_value'], false))),
           'discount_amount' => '0.00',
           'tax_amount' => '0',
           'tax_class_name' => '',
           'tax_rate' => '0%',
-          'unit_price' => strval($this->getTillitRoundAmount($this->currency->format($total['value'], $order_info['currency_code'], $order_info['currency_value'], false))),
+          'unit_price' => strval($this->getTwoRoundAmount($this->currency->format($total['value'], $order_info['currency_code'], $order_info['currency_value'], false))),
           'quantity' => 1,
           'quantity_unit' => $total['code'], // shipment charge
           'image_url' => '',
@@ -362,12 +362,12 @@ class ControllerExtensionPaymentTillit extends Controller {
     return $items;
   }
 
-  public function getTillitRoundAmount($amount)
+  public function getTwoRoundAmount($amount)
   {
     return number_format($amount, 2, '.', '');
   }
 
-  public function getTillitIntentOrderData($order_id){
+  public function getTwoIntentOrderData($order_id){
 
     $this->load->model('checkout/order');
     $order_info = $this->model_checkout_order->getOrder($order_id);
@@ -378,8 +378,8 @@ class ControllerExtensionPaymentTillit extends Controller {
     if(isset($this->session->data['payment_address']['company_id']) && $this->session->data['payment_address']['company_id']){
       $company_id = $this->session->data['payment_address']['company_id'];
     } else {
-      $this->load->model('extension/payment/tillit');
-      $company_info = $this->model_extension_payment_tillit->getAddressByCompany($order_info['payment_company']);
+      $this->load->model('extension/payment/two');
+      $company_info = $this->model_extension_payment_two->getAddressByCompany($order_info['payment_company']);
       $company_id = $company_info['company_id'];
     }
   
@@ -400,8 +400,8 @@ class ControllerExtensionPaymentTillit extends Controller {
           ),
         ),
         'currency' => $order_info['currency_code'],
-        'merchant_short_name' => $this->config->get('payment_tillit_merchant_id'),
-        'invoice_type' => $this->config->get('payment_tillit_choose_product'),
+        'merchant_short_name' => $this->config->get('payment_two_merchant_id'),
+        'invoice_type' => $this->config->get('payment_two_choose_product'),
         'line_items' => array(
           array(
             'name' => 'Cart',
@@ -430,16 +430,16 @@ class ControllerExtensionPaymentTillit extends Controller {
     return $request_data;
   }
 
-  public function setTillitPaymentRequest($endpoint, $payload = [], $method = 'POST'){
+  public function setTwoPaymentRequest($endpoint, $payload = [], $method = 'POST'){
 
-    if($this->config->get('payment_tillit_mode')){
+    if($this->config->get('payment_two_mode')){
       $base_url = 'https://api.tillit.ai';
     } else {
       $base_url = 'https://test.api.tillit.ai';
     }
 
     if (strpos($_SERVER['SERVER_NAME'], 'tillit.ai') !== false) {
-      $base_url = $this->config->get('payment_tillit_staging_server');
+      $base_url = $this->config->get('payment_two_staging_server');
     }
 
     if ($method == "POST" || $method == "PUT") {
@@ -448,11 +448,11 @@ class ControllerExtensionPaymentTillit extends Controller {
       $params = empty($payload) ? '' : json_encode($payload);
       $headers = [
         'Content-Type: application/json; charset=utf-8',
-        'X-API-Key:' . $this->config->get('payment_tillit_api_key'),
+        'X-API-Key:' . $this->config->get('payment_two_api_key'),
       ];
-      if ($this->config->get('payment_tillit_debug')) {
-        $this->log->write('TILLIT REQUEST :: IPN URL: ' . $url);
-        $this->log->write('TILLIT REQUEST :: IPN PAYLOAD: ' . $params);
+      if ($this->config->get('payment_two_debug')) {
+        $this->log->write('TWO REQUEST :: IPN URL: ' . $url);
+        $this->log->write('TWO REQUEST :: IPN PAYLOAD: ' . $params);
       }
       $ch = curl_init();
       curl_setopt($ch, CURLOPT_URL, $url);
@@ -472,11 +472,11 @@ class ControllerExtensionPaymentTillit extends Controller {
       $url = $url . '?client=OC&client_v=1.0';
       $headers = [
         'Content-Type: application/json; charset=utf-8',
-        'X-API-Key:' . $this->config->get('payment_tillit_api_key'),
+        'X-API-Key:' . $this->config->get('payment_two_api_key'),
       ];
 
-      if ($this->config->get('payment_tillit_debug')) {
-        $this->log->write('TILLIT REQUEST :: IPN URL: ' . $url);
+      if ($this->config->get('payment_two_debug')) {
+        $this->log->write('TWO REQUEST :: IPN URL: ' . $url);
       }
 
       $ch = curl_init();
@@ -492,27 +492,27 @@ class ControllerExtensionPaymentTillit extends Controller {
       curl_getinfo($ch);
       curl_close($ch);
     }
-    if ($this->config->get('payment_tillit_debug')) {
-      $this->log->write('TILLIT RESPONSE :: ' . $response);
+    if ($this->config->get('payment_two_debug')) {
+      $this->log->write('TWO RESPONSE :: ' . $response);
     }
     $response = json_decode($response, true);
     return $response;
   }
 
-  public function checkTillitStartsWithString($string, $startString)
+  public function checkTwoStartsWithString($string, $startString)
   {
     $len = strlen($startString);
     return substr($string, 0, $len) === $startString;
   }
 
-  public function getTillitErrorMessage($body)
+  public function getTwoErrorMessage($body)
   {
     if (!$body) {
       return 'Something went wrong please contact store owner.';
     }
 
     if (isset($body['response']['code']) && $body['response'] && $body['response']['code'] && $body['response']['code'] >= 400) {
-      return sprintf($this->l('Tillit response code %d'), $body['response']['code']);
+      return sprintf($this->l('Two response code %d'), $body['response']['code']);
     }
       
     if (is_string($body)) {
@@ -541,14 +541,14 @@ class ControllerExtensionPaymentTillit extends Controller {
     $order_info = $this->model_checkout_order->getOrder($order_id);
 
     if($order_info){
-      $this->load->model('extension/payment/tillit');
-      $tillit_order_info = $this->model_extension_payment_tillit->getTillitOrderPaymentData($order_id);
-      if($tillit_order_info && isset($tillit_order_info['id'])){
-        $response = $this->setTillitPaymentRequest('/v1/order/' . $tillit_order_info['id'], [], 'GET');
-        $tillit_err = $this->getTillitErrorMessage($response);
-        if ($tillit_err) {
+      $this->load->model('extension/payment/two');
+      $two_order_info = $this->model_extension_payment_two->getTwoOrderPaymentData($order_id);
+      if($two_order_info && isset($two_order_info['id'])){
+        $response = $this->setTwoPaymentRequest('/v1/order/' . $two_order_info['id'], [], 'GET');
+        $two_err = $this->getTwoErrorMessage($response);
+        if ($two_err) {
           $this->response->redirect($this->url->link('checkout/failure'));
-          $this->model_checkout_order->addOrderHistory($order_id, $this->config->get('payment_tillit_failed_status_id'));
+          $this->model_checkout_order->addOrderHistory($order_id, $this->config->get('payment_two_failed_status_id'));
         }
 
         if (isset($response['state']) && $response['state'] == 'VERIFIED') {
@@ -557,11 +557,11 @@ class ControllerExtensionPaymentTillit extends Controller {
             'merchant_reference' => $response['merchant_reference'],
             'state' => $response['state'],
             'status' => $response['status'],
-            'day_on_invoice' => $this->config->get('payment_tillit_invoice_days'),
+            'day_on_invoice' => $this->config->get('payment_two_invoice_days'),
             'invoice_url' => $response['invoice_url'],
           );
-          $this->model_extension_payment_tillit->setTillitOrderPaymentData($order_id, $payment_data);
-          $this->model_checkout_order->addOrderHistory($order_id, $this->config->get('payment_tillit_verified_status_id'));
+          $this->model_extension_payment_two->setTwoOrderPaymentData($order_id, $payment_data);
+          $this->model_checkout_order->addOrderHistory($order_id, $this->config->get('payment_two_verified_status_id'));
           $this->response->redirect($this->url->link('checkout/success'));
         } elseif (isset($response['state']) && $response['state'] == 'UNVERIFIED') {
           $payment_data = array(
@@ -569,14 +569,14 @@ class ControllerExtensionPaymentTillit extends Controller {
             'merchant_reference' => $response['merchant_reference'],
             'state' => $response['state'],
             'status' => $response['status'],
-            'day_on_invoice' => $this->config->get('payment_tillit_invoice_days'),
+            'day_on_invoice' => $this->config->get('payment_two_invoice_days'),
             'invoice_url' => $response['invoice_url'],
           );
-          $this->model_extension_payment_tillit->setTillitOrderPaymentData($order_id, $payment_data); 
-          $this->model_checkout_order->addOrderHistory($order_id, $this->config->get('payment_tillit_unverified_status_id'));
+          $this->model_extension_payment_two->setTwoOrderPaymentData($order_id, $payment_data); 
+          $this->model_checkout_order->addOrderHistory($order_id, $this->config->get('payment_two_unverified_status_id'));
           $this->response->redirect($this->url->link('checkout/success'));
         } else {
-          $this->model_checkout_order->addOrderHistory($order_id, $this->config->get('payment_tillit_failed_status_id'));
+          $this->model_checkout_order->addOrderHistory($order_id, $this->config->get('payment_two_failed_status_id'));
           $this->response->redirect($this->url->link('checkout/failure'));
         }
       } else {
@@ -590,7 +590,7 @@ class ControllerExtensionPaymentTillit extends Controller {
 
   public function company() {
 
-    $this->load->language('extension/payment/tillit');
+    $this->load->language('extension/payment/two');
 
     $json = array();
 
@@ -622,14 +622,14 @@ class ControllerExtensionPaymentTillit extends Controller {
         'offset' => 0,
         'q' => $company,
       );
-      $url = $base_url.'search?'.http_build_query($params);
+      $url = $base_url.'search?limit=50&offset=0&q='.$company;
 
       $headers = [
         'Content-Type: application/json; charset=utf-8',
       ];
 
-      if ($this->config->get('payment_tillit_debug')) {
-        $this->log->write('TILLIT REQUEST :: IPN URL: ' . $url);
+      if ($this->config->get('payment_two_debug')) {
+        $this->log->write('TWO REQUEST :: IPN URL: ' . $url);
       }
 
       $ch = curl_init();
@@ -657,7 +657,7 @@ class ControllerExtensionPaymentTillit extends Controller {
 
   public function address() {
 
-    $this->load->language('extension/payment/tillit');
+    $this->load->language('extension/payment/two');
 
     $json = array();
 
@@ -670,14 +670,14 @@ class ControllerExtensionPaymentTillit extends Controller {
 
     if ($company_id) {
       $base_url = '';
-      if($this->config->get('payment_tillit_mode')){
+      if($this->config->get('payment_two_mode')){
         $base_url = 'https://api.tillit.ai';
       } else {
         $base_url = 'https://test.api.tillit.ai';
       }
 
       if (strpos($_SERVER['SERVER_NAME'], 'tillit.ai') !== false) {
-        $base_url = $this->config->get('payment_tillit_staging_server');
+        $base_url = $this->config->get('payment_two_staging_server');
       }
       
       $url = $base_url.'/v1/company/'.$company_id.'/address';
@@ -686,8 +686,8 @@ class ControllerExtensionPaymentTillit extends Controller {
         'Content-Type: application/json; charset=utf-8',
       ];
 
-      if ($this->config->get('payment_tillit_debug')) {
-        $this->log->write('TILLIT REQUEST :: IPN URL: ' . $url);
+      if ($this->config->get('payment_two_debug')) {
+        $this->log->write('TWO REQUEST :: IPN URL: ' . $url);
       }
 
       $ch = curl_init();

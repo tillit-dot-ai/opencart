@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <modification>
-  <name>Tillit Payment Gateway API</name>
-  <code>tillit_default</code>
-  <version>1.0.0</version>
-  <author>TillitAs</author>
+  <name>Two Payment Gateway API</name>
+  <code>two_default</code>
+  <version>1.1.0</version>
+  <author>TwoAs</author>
   <link>http://www.tillit.ai</link>
   <file path="system/library/cart/customer.php">
   <operation error="log">
@@ -42,7 +42,7 @@
         <![CDATA[
         //Norway(160),UK(222)
         $countryList = array(222,160);
-        if($this->config->get('payment_tillit_status') && $this->customer->getAccountType() == 'business' && in_array($country_id, $countryList)){
+        if($this->config->get('payment_two_status') && $this->customer->getAccountType() == 'business' && in_array($country_id, $countryList)){
           return array();
         }]]>
       </add>
@@ -55,9 +55,9 @@
       </search>
       <add position="before">
         <![CDATA[
-        if($this->config->get('payment_tillit_status')){
-          $this->language->load('extension/payment/tillit');
-          $data['tillit_status'] = $this->config->get('payment_tillit_status');
+        if($this->config->get('payment_two_status')){
+          $this->language->load('extension/payment/two');
+          $data['two_status'] = $this->config->get('payment_two_status');
 
           if (isset($this->request->post['account_type'])) {
             $data['account_type'] = $this->request->post['account_type'];
@@ -77,7 +77,7 @@
         <![CDATA[{% for custom_field in custom_fields %}]]>
       </search>
       <add position="before">
-        <![CDATA[{% if tillit_status %}
+        <![CDATA[{% if two_status %}
           <div class="form-group required">
             <label class="col-sm-2 control-label" for="input-country">{{ entry_account_type }}</label>
             <div class="col-sm-10">
@@ -137,9 +137,9 @@
       </search>
       <add position="before">
         <![CDATA[
-      if($this->config->get('payment_tillit_status')){
-        $this->language->load('extension/payment/tillit');
-        $data['tillit_status'] = $this->config->get('payment_tillit_status');
+      if($this->config->get('payment_two_status')){
+        $this->language->load('extension/payment/two');
+        $data['two_status'] = $this->config->get('payment_two_status');
 
         if (isset($this->request->post['account_type'])) {
           $data['account_type'] = $this->request->post['account_type'];
@@ -161,7 +161,7 @@
         <![CDATA[{% for custom_field in custom_fields %}]]>
       </search>
       <add position="before">
-        <![CDATA[{% if tillit_status %}
+        <![CDATA[{% if two_status %}
           <div class="form-group required">
             <label class="col-sm-2 control-label" for="input-country">{{ entry_account_type }}</label>
             <div class="col-sm-10">
@@ -221,7 +221,7 @@
       </search>
       <add position="after">
         <![CDATA[
-        if($this->config->get('payment_tillit_status')){
+        if($this->config->get('payment_two_status')){
       if (isset($data['account_type'])) {
         $this->db->query("UPDATE `" . DB_PREFIX . "customer` SET account_type = '" . $this->db->escape($data['account_type']) . "' WHERE customer_id = '" . (int)$customer_id . "'");
       }
@@ -234,7 +234,7 @@
       </search>
       <add position="after">
         <![CDATA[
-        if($this->config->get('payment_tillit_status')){
+        if($this->config->get('payment_two_status')){
       if ($data['account_type']) {
         $this->db->query("UPDATE `" . DB_PREFIX . "customer` SET account_type = '" . $this->db->escape($data['account_type']) . "' WHERE customer_id = '" . (int)$customer_id . "'");
       }
@@ -252,10 +252,10 @@
       </search>
       <add position="before">
         <![CDATA[
-      if($this->config->get('payment_tillit_status') && $this->customer->getAccountType() == 'business'){
-        $data['tillit_status'] = $this->config->get('payment_tillit_status');
+      if($this->config->get('payment_two_status') && $this->customer->getAccountType() == 'business'){
+        $data['two_status'] = $this->config->get('payment_two_status');
 
-        $this->language->load('extension/payment/tillit');
+        $this->language->load('extension/payment/two');
 
         if (isset($this->request->post['company_id'])) {
           $data['company_id'] = $this->request->post['company_id'];
@@ -290,7 +290,7 @@
       </search>
       <add position="before">
         <![CDATA[
-         if($this->config->get('payment_tillit_status') && $this->customer->getAccountType() == 'business'){
+         if($this->config->get('payment_two_status') && $this->customer->getAccountType() == 'business'){
           if ($this->request->post['company_id'] == '' && in_array($this->request->post['country_id'], array(222,160))) {
             $this->error['company'] = 'Please select company from suggested list.';
           }
@@ -306,7 +306,7 @@
       </search>
       <add position="before">
         <![CDATA[
-      if($this->config->get('payment_tillit_status')){
+      if($this->config->get('payment_two_status')){
         if (!empty($data['company_id'])) {
           $this->db->query("UPDATE " . DB_PREFIX . "address SET company_id = '" . $this->db->escape($data['company_id']) . "' WHERE address_id = '" . (int)$address_id . "'");
         }
@@ -331,7 +331,7 @@
         <![CDATA[<input type="text" name="company" value="{{ company }}" placeholder="{{ entry_company }}" id="input-company" class="form-control" />]]>
       </search>
       <add position="after">
-        <![CDATA[{% if tillit_status %}{% if error_company %}<div class="text-danger">{{ error_company }}</div>
+        <![CDATA[{% if two_status %}{% if error_company %}<div class="text-danger">{{ error_company }}</div>
               {% endif %}</div></div><div class="form-group">
         <label class="col-sm-2 control-label" for="input-payment-company-id">{{ entry_company_id }}</label>
         <div class="col-sm-10"><input readonly placeholder="{{ text_autocomplete }}" type="text" name="company_id" value="{{ company_id }}" id="input-payment-company-id" class="form-control"/>{% endif %}]]>
@@ -342,7 +342,7 @@
         <![CDATA[{{ footer }}]]>
       </search>
       <add position="before">
-        <![CDATA[{% if tillit_status %}<script type="text/javascript"><!--
+        <![CDATA[{% if two_status %}<script type="text/javascript"><!--
       $( window ).load(function() {
         $('#input-country').change();
       });
@@ -369,7 +369,7 @@
           $('input[name=\'company\']').autocomplete({
             'source': function(request, response) {
               $.ajax({
-                url: 'index.php?route=extension/payment/tillit/company&company=' + encodeURIComponent(request) + '&country_id=' + encodeURIComponent($('#input-country').val()),
+                url: 'index.php?route=extension/payment/two/company&company=' + encodeURIComponent(request) + '&country_id=' + encodeURIComponent($('#input-country').val()),
                 dataType: 'json',               
                 success: function(json) {
                   if(json['success']){
@@ -388,7 +388,7 @@
               $('input[name=\'company\']').val(item['label']);
               $('input[name=\'company_id\']').val(item['value']);
               $.ajax({
-                url: 'index.php?route=extension/payment/tillit/address&company_id=' + encodeURIComponent(item['value']),
+                url: 'index.php?route=extension/payment/two/address&company_id=' + encodeURIComponent(item['value']),
                 dataType: 'json',
                 success: function(json) {
                   var city = json.address.city;
@@ -424,7 +424,7 @@
         if (!$this->customer->isLogged()) {
           //Norway(160),UK(222)
             $countryList = array(222,160);
-            if($this->config->get('payment_tillit_status') && in_array($this->request->get['country_id'], $countryList)){
+            if($this->config->get('payment_two_status') && in_array($this->request->get['country_id'], $countryList)){
               $zone = array();
             }
         }]]>
@@ -447,7 +447,7 @@
       </search>
       <add position="before">
         <![CDATA[
-    if($this->config->get('payment_tillit_status') && $this->customer->getAccountType() == 'business'){
+    if($this->config->get('payment_two_status') && $this->customer->getAccountType() == 'business'){
       if ($this->request->post['company_id'] == '' && in_array($this->request->post['country_id'], array(222,160))) {
         $json['error']['company'] = 'Please select company from suggested list.';
       }
@@ -461,9 +461,9 @@
       </search>
       <add position="before">
         <![CDATA[
-      if($this->config->get('payment_tillit_status') && $this->customer->getAccountType() == 'business'){
-        $data['tillit_status'] = $this->config->get('payment_tillit_status');
-        $this->language->load('extension/payment/tillit');
+      if($this->config->get('payment_two_status') && $this->customer->getAccountType() == 'business'){
+        $data['two_status'] = $this->config->get('payment_two_status');
+        $this->language->load('extension/payment/two');
         $this->load->language('checkout/checkout');
       }
     ]]>
@@ -476,7 +476,7 @@
         <![CDATA[<input type="text" name="company" value="" placeholder="{{ entry_company }}" id="input-payment-company" class="form-control" />]]>
       </search>
       <add position="after">
-        <![CDATA[{% if tillit_status %}</div></div><div class="form-group">
+        <![CDATA[{% if two_status %}</div></div><div class="form-group">
         <label class="col-sm-2 control-label" for="input-payment-company-id">{{ entry_company_id }}</label>
         <div class="col-sm-10"><input readonly placeholder="{{ text_autocomplete }}" type="text" name="company_id" value="{{ company_id }}" id="input-payment-company-id" class="form-control"/>{% endif %}]]>
       </add>
@@ -486,7 +486,7 @@
         <![CDATA[$('input[name=\'payment_address\']').on('change', function() {]]>
       </search>
       <add position="before">
-        <![CDATA[{% if tillit_status %}
+        <![CDATA[{% if two_status %}
     $( window ).load(function() {
       $('#input-payment-country').change();
     });
@@ -513,7 +513,7 @@
           $('input[name=\'company\']').autocomplete({
             'source': function(request, response) {
               $.ajax({
-                url: 'index.php?route=extension/payment/tillit/company&company=' + encodeURIComponent(request) + '&country_id=' + encodeURIComponent($('#input-payment-country').val()),
+                url: 'index.php?route=extension/payment/two/company&company=' + encodeURIComponent(request) + '&country_id=' + encodeURIComponent($('#input-payment-country').val()),
                 dataType: 'json',               
                 success: function(json) {
                   if(json['success']){
@@ -532,7 +532,7 @@
               $('input[name=\'company\']').val(item['label']);
               $('input[name=\'company_id\']').val(item['value']);
               $.ajax({
-                url: 'index.php?route=extension/payment/tillit/address&company_id=' + encodeURIComponent(item['value']),
+                url: 'index.php?route=extension/payment/two/address&company_id=' + encodeURIComponent(item['value']),
                 dataType: 'json',
                 success: function(json) {
                   var city = json.address.city;
@@ -561,7 +561,7 @@
       </search>
       <add position="before">
         <![CDATA[
-      if($this->config->get('payment_tillit_status') && $this->customer->getAccountType() == 'business'){
+      if($this->config->get('payment_two_status') && $this->customer->getAccountType() == 'business'){
         if ($this->request->post['company_id'] == '' && in_array($this->request->post['country_id'], array(222,160))) {
           $json['error']['company'] = 'Please select company from suggested list.';
         }
@@ -575,9 +575,9 @@
       </search>
       <add position="before">
         <![CDATA[
-      if($this->config->get('payment_tillit_status') && $this->customer->getAccountType() == 'business'){
-        $data['tillit_status'] = $this->config->get('payment_tillit_status');
-        $this->language->load('extension/payment/tillit');
+      if($this->config->get('payment_two_status') && $this->customer->getAccountType() == 'business'){
+        $data['two_status'] = $this->config->get('payment_two_status');
+        $this->language->load('extension/payment/two');
         $this->load->language('checkout/checkout');
       }
     ]]>
@@ -590,7 +590,7 @@
         <![CDATA[<input type="text" name="company" value="" placeholder="{{ entry_company }}" id="input-shipping-company" class="form-control" />]]>
       </search>
       <add position="after">
-        <![CDATA[{% if tillit_status %}</div></div><div class="form-group">
+        <![CDATA[{% if two_status %}</div></div><div class="form-group">
         <label class="col-sm-2 control-label" for="input-shipping-company-id">{{ entry_company_id }}</label>
         <div class="col-sm-10"><input readonly placeholder="{{ text_autocomplete }}" type="text" name="company_id" value="{{ company_id }}" id="input-payment-company-id" class="form-control"/>{% endif %}]]>
       </add>
@@ -600,7 +600,7 @@
         <![CDATA[$('#collapse-shipping-address select[name=\'country_id\']').on('change', function() {]]>
       </search>
       <add position="before">
-        <![CDATA[{% if tillit_status %}
+        <![CDATA[{% if two_status %}
     $( window ).load(function() {
       $('#input-shipping-country').change();
     });
@@ -627,7 +627,7 @@
           $('input[name=\'company\']').autocomplete({
             'source': function(request, response) {
               $.ajax({
-                url: 'index.php?route=extension/payment/tillit/company&company=' + encodeURIComponent(request) + '&country_id=' + encodeURIComponent($('#input-shipping-country').val()),
+                url: 'index.php?route=extension/payment/two/company&company=' + encodeURIComponent(request) + '&country_id=' + encodeURIComponent($('#input-shipping-country').val()),
                 dataType: 'json',               
                 success: function(json) {
                   if(json['success']){
@@ -646,7 +646,7 @@
               $('input[name=\'company\']').val(item['label']);
               $('input[name=\'company_id\']').val(item['value']);
               $.ajax({
-                url: 'index.php?route=extension/payment/tillit/address&company_id=' + encodeURIComponent(item['value']),
+                url: 'index.php?route=extension/payment/two/address&company_id=' + encodeURIComponent(item['value']),
                 dataType: 'json',
                 success: function(json) {
                   var city = json.address.city;
@@ -677,9 +677,9 @@
       </search>
       <add position="before">
         <![CDATA[
-      if($this->config->get('payment_tillit_status')){
-        $data['tillit_status'] = $this->config->get('payment_tillit_status');
-        $this->load->language('extension/payment/tillit');
+      if($this->config->get('payment_two_status')){
+        $data['two_status'] = $this->config->get('payment_two_status');
+        $this->load->language('extension/payment/two');
 
         if (isset($this->session->data['guest']['account_type'])) {
           $data['account_type'] = $this->session->data['guest']['account_type'];
@@ -704,7 +704,7 @@
       </search>
       <add position="before">
         <![CDATA[
-      if($this->config->get('payment_tillit_status') && $this->request->post['account_type'] == 'business'){
+      if($this->config->get('payment_two_status') && $this->request->post['account_type'] == 'business'){
         if ($this->request->post['company_id'] == '' && in_array($this->request->post['country_id'], array(222,160))) {
           $json['error']['company'] = 'Please select company from suggested list.';
         }
@@ -718,7 +718,7 @@
       </search>
       <add position="after">
         <![CDATA[
-      if($this->config->get('payment_tillit_status')){
+      if($this->config->get('payment_two_status')){
         $this->session->data['payment_address']['company_id'] = $this->request->post['company_id'];
         $this->session->data['guest']['account_type'] = $this->request->post['account_type'];
       }
@@ -732,7 +732,7 @@
         <![CDATA[<input type="text" name="company" value="{{ company }}" placeholder="{{ entry_company }}" id="input-payment-company" class="form-control" />]]>
       </search>
       <add position="after">
-        <![CDATA[{% if tillit_status %}</div>
+        <![CDATA[{% if two_status %}</div>
         <div class="form-group">
         <label class="control-label" for="input-payment-company-id">{{ entry_company_id }}</label>
         <input readonly placeholder="{{ text_autocomplete }}" type="text" name="company_id" value="{{ company_id }}" id="input-payment-company-id" class="form-control"/>{% endif %}]]>
@@ -743,7 +743,7 @@
         <![CDATA[<input type="text" name="telephone" value="{{ telephone }}" placeholder="{{ entry_telephone }}" id="input-payment-telephone" class="form-control" />]]>
       </search>
       <add position="after">
-        <![CDATA[{% if tillit_status %}</div>
+        <![CDATA[{% if two_status %}</div>
           <div class="form-group required">
             <label class="control-label" for="input-payment-account-type">{{ entry_account_type }}</label>
             <div class="">
@@ -771,7 +771,7 @@
         <![CDATA[$('#collapse-payment-address input[name=\'customer_group_id\']').on('change', function() {]]>
       </search>
       <add position="before">
-        <![CDATA[{% if tillit_status %}
+        <![CDATA[{% if two_status %}
         countryTel();
     $( window ).load(function() {
       $('#input-payment-country').change();
@@ -822,7 +822,7 @@
           $('input[name=\'company\']').autocomplete({
             'source': function(request, response) {
               $.ajax({
-                url: 'index.php?route=extension/payment/tillit/company&company=' + encodeURIComponent(request) + '&country_id=' + encodeURIComponent($('#input-payment-country').val()),
+                url: 'index.php?route=extension/payment/two/company&company=' + encodeURIComponent(request) + '&country_id=' + encodeURIComponent($('#input-payment-country').val()),
                 dataType: 'json',               
                 success: function(json) {
                   if(json['success']){
@@ -841,7 +841,7 @@
               $('input[name=\'company\']').val(item['label']);
               $('input[name=\'company_id\']').val(item['value']);
               $.ajax({
-                url: 'index.php?route=extension/payment/tillit/address&company_id=' + encodeURIComponent(item['value']),
+                url: 'index.php?route=extension/payment/two/address&company_id=' + encodeURIComponent(item['value']),
                 dataType: 'json',
                 success: function(json) {
                   var city = json.address.city;
@@ -871,9 +871,9 @@
       </search>
       <add position="before">
         <![CDATA[
-      if($this->config->get('payment_tillit_status')){
-        $data['tillit_status'] = $this->config->get('payment_tillit_status');
-        $this->load->language('extension/payment/tillit');
+      if($this->config->get('payment_two_status')){
+        $data['two_status'] = $this->config->get('payment_two_status');
+        $this->load->language('extension/payment/two');
 
         $this->load->language('checkout/checkout');
       }
@@ -886,7 +886,7 @@
       </search>
       <add position="before">
         <![CDATA[
-      if($this->config->get('payment_tillit_status') && $this->request->post['account_type'] == 'business'){
+      if($this->config->get('payment_two_status') && $this->request->post['account_type'] == 'business'){
         if ($this->request->post['company_id'] == '' && in_array($this->request->post['country_id'], array(222,160))) {
           $json['error']['company'] = 'Please select company from suggested list.';
         }
@@ -900,7 +900,7 @@
       </search>
       <add position="before">
         <![CDATA[
-      if($this->config->get('payment_tillit_status') && $this->request->post['account_type'] == 'business'){
+      if($this->config->get('payment_two_status') && $this->request->post['account_type'] == 'business'){
         if ($this->request->post['company_id'] == '' && in_array($this->request->post['country_id'], array(222,160))) {
           $json['error']['company'] = 'Please select company from suggested list.';
         }
@@ -915,7 +915,7 @@
         <![CDATA[<input type="text" name="company" value="" placeholder="{{ entry_company }}" id="input-payment-company" class="form-control" />]]>
       </search>
       <add position="after">
-        <![CDATA[{% if tillit_status %}</div>
+        <![CDATA[{% if two_status %}</div>
         <div class="form-group">
         <label class="control-label" for="input-payment-company-id">{{ entry_company_id }}</label>
         <input readonly placeholder="{{ text_autocomplete }}" type="text" name="company_id" value="" id="input-payment-company-id" class="form-control"/>{% endif %}]]>
@@ -926,7 +926,7 @@
         <![CDATA[<input type="text" name="telephone" value="" placeholder="{{ entry_telephone }}" id="input-payment-telephone" class="form-control" />]]>
       </search>
       <add position="after">
-        <![CDATA[{% if tillit_status %}</div>
+        <![CDATA[{% if two_status %}</div>
           <div class="form-group required">
             <label class="control-label" for="input-payment-account-type">{{ entry_account_type }}</label>
             <div class="">
@@ -954,7 +954,7 @@
         <![CDATA[$('#collapse-payment-address input[name=\'customer_group_id\']').on('change', function() {]]>
       </search>
       <add position="before">
-        <![CDATA[{% if tillit_status %}
+        <![CDATA[{% if two_status %}
         countryTel();
     $( window ).load(function() {
       $('#input-payment-country').change();
@@ -1005,7 +1005,7 @@
           $('input[name=\'company\']').autocomplete({
             'source': function(request, response) {
               $.ajax({
-                url: 'index.php?route=extension/payment/tillit/company&company=' + encodeURIComponent(request) + '&country_id=' + encodeURIComponent($('#input-payment-country').val()),
+                url: 'index.php?route=extension/payment/two/company&company=' + encodeURIComponent(request) + '&country_id=' + encodeURIComponent($('#input-payment-country').val()),
                 dataType: 'json',               
                 success: function(json) {
                   if(json['success']){
@@ -1024,7 +1024,7 @@
               $('input[name=\'company\']').val(item['label']);
               $('input[name=\'company_id\']').val(item['value']);
               $.ajax({
-                url: 'index.php?route=extension/payment/tillit/address&company_id=' + encodeURIComponent(item['value']),
+                url: 'index.php?route=extension/payment/two/address&company_id=' + encodeURIComponent(item['value']),
                 dataType: 'json',
                 success: function(json) {
                   var city = json.address.city;
@@ -1100,7 +1100,7 @@
         <![CDATA[<div id="history"></div>]]>
       </search>
       <add position="before">
-        <![CDATA[<div id="tillit"></div>]]>
+        <![CDATA[<div id="two"></div>]]>
       </add>
     </operation>
     <operation error="log">
@@ -1108,7 +1108,7 @@
         <![CDATA[$('#button-history').on('click', function() {]]>
       </search>
       <add position="before">
-        <![CDATA[{% if payment_code == 'tillit' %}$('#tillit').load('index.php?route=extension/payment/tillit/history&user_token={{ user_token }}&order_id={{ order_id }}&order_status_id=' + encodeURIComponent($('select[name=\'order_status_id\']').val()));{% endif %}]]>
+        <![CDATA[{% if payment_code == 'two' %}$('#two').load('index.php?route=extension/payment/two/history&user_token={{ user_token }}&order_id={{ order_id }}&order_status_id=' + encodeURIComponent($('select[name=\'order_status_id\']').val()));{% endif %}]]>
       </add>
     </operation>
     <operation error="log">
@@ -1116,9 +1116,9 @@
         <![CDATA[$('#button-history').on('click', function() {]]>
       </search>
       <add position="after">
-        <![CDATA[{% if payment_code == 'tillit' %}
+        <![CDATA[{% if payment_code == 'two' %}
       $.ajax({
-        url: 'index.php?route=extension/payment/tillit/updateOrder&user_token={{ user_token }}&order_id={{ order_id }}',
+        url: 'index.php?route=extension/payment/two/updateOrder&user_token={{ user_token }}&order_id={{ order_id }}',
         type: 'post',
         dataType: 'json',
         data: 'order_status_id=' + encodeURIComponent($('select[name=\'order_status_id\']').val()) + '&notify=' + ($('input[name=\'notify\']').prop('checked') ? 1 : 0) + '&override=' + ($('input[name=\'override\']').prop('checked') ? 1 : 0) + '&append=' + ($('input[name=\'append\']').prop('checked') ? 1 : 0) + '&comment=' + encodeURIComponent($('textarea[name=\'comment\']').val()),
@@ -1131,10 +1131,10 @@
         success: function(json) {
           $('.alert-dismissible').remove();
           if (json['error']) {
-            $('#tillit').before('<div class="alert alert-danger alert-dismissible"><i class="fa fa-exclamation-circle"></i> ' + json['error'] + ' <button type="button" class="close" data-dismiss="alert">&times;</button></div>');
+            $('#two').before('<div class="alert alert-danger alert-dismissible"><i class="fa fa-exclamation-circle"></i> ' + json['error'] + ' <button type="button" class="close" data-dismiss="alert">&times;</button></div>');
           }
           if (json['success']) {          
-            $('#tillit').load('index.php?route=extension/payment/tillit/history&user_token={{ user_token }}&order_id={{ order_id }}');
+            $('#two').load('index.php?route=extension/payment/two/history&user_token={{ user_token }}&order_id={{ order_id }}');
             callHostory();
           }
         },
@@ -1164,7 +1164,7 @@
 
           if (json['success']) {
             $('#history').load('index.php?route=sale/order/history&user_token={{ user_token }}&order_id={{ order_id }}');
-            {% if payment_code == 'tillit' %}$('#tillit').load('index.php?route=extension/payment/tillit/history&user_token={{ user_token }}&order_id={{ order_id }}&order_status_id=' + encodeURIComponent($('select[name=\'order_status_id\']').val()));{% endif %}
+            {% if payment_code == 'two' %}$('#two').load('index.php?route=extension/payment/two/history&user_token={{ user_token }}&order_id={{ order_id }}&order_status_id=' + encodeURIComponent($('select[name=\'order_status_id\']').val()));{% endif %}
             $('#history').before('<div class="alert alert-success alert-dismissible"><i class="fa fa-check-circle"></i> ' + json['success'] + ' <button type="button" class="close" data-dismiss="alert">&times;</button></div>');
 
             $('textarea[name=\'comment\']').val('');
@@ -1210,7 +1210,7 @@
       <add position="before">
         <![CDATA[if (json['success']) {
         $.ajax({
-          url: 'index.php?route=extension/payment/tillit/editOrder&user_token={{ user_token }}&order_id='+$('input[name=\'order_id\']').val(),
+          url: 'index.php?route=extension/payment/two/editOrder&user_token={{ user_token }}&order_id='+$('input[name=\'order_id\']').val(),
           type: 'post',
           crossDomain: true,
           success: function(message) {
