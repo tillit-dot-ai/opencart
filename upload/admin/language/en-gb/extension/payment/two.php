@@ -6,7 +6,7 @@ $_['heading_title']					 = 'Two Payment';
 $_['text_extension']				 = 'Extensions';
 $_['text_success']					 = 'Success: You have modified Two Payment details!';
 $_['text_edit']                      = 'Edit Two Payment';
-$_['text_two']				         = '<a target="_BLANK" href="https://tillit.ai/"><img src="view/image/payment/two.png" alt="Two Payment" title="Two Payment" style="border: 1px solid #EEEEEE;" /></a>';
+$_['text_two']				         = '<a target="_BLANK" href="https://tillit.ai/"><img src="view/image/payment/two.png" alt="Two Payment" title="Two Payment" style="border: 1px solid #EEEEEE;" width="100px" /></a>';
 $_['text_authorization']			 = 'Authorization';
 $_['text_sale']						 = 'Sale'; 
 
