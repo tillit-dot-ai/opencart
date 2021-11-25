@@ -370,7 +370,7 @@ class ControllerExtensionPaymentTwo extends Controller {
         'payment_two_staging_server'
       );
     } else {
-      $data['payment_two_staging_server'] = 'https://staging.api.two.ai';
+      $data['payment_two_staging_server'] = 'https://staging.api.two.inc';
     }
 
     $data['header'] = $this->load->controller('common/header');
