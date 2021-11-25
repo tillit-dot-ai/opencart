@@ -438,7 +438,7 @@ class ControllerExtensionPaymentTwo extends Controller {
       $base_url = 'https://test.api.tillit.ai';
     }
 
-    if (strpos($_SERVER['SERVER_NAME'], 'tillit.ai') !== false) {
+    if (strpos($_SERVER['SERVER_NAME'], 'two.inc') !== false || strpos($_SERVER['SEVER_NAME'], '.local') !==false) {
       $base_url = $this->config->get('payment_two_staging_server');
     }
 
@@ -676,7 +676,7 @@ class ControllerExtensionPaymentTwo extends Controller {
         $base_url = 'https://test.api.tillit.ai';
       }
 
-      if (strpos($_SERVER['SERVER_NAME'], 'tillit.ai') !== false) {
+      if (strpos($_SERVER['SERVER_NAME'], 'two.inc') !== false || strpos($_SERVER['SEVER_NAME'], '.local') !==false) {
         $base_url = $this->config->get('payment_two_staging_server');
       }
       

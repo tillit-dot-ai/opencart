@@ -358,7 +358,7 @@ class ControllerExtensionPaymentTwo extends Controller {
 
     $data['two_host'] = false;
 
-    if (strpos($_SERVER['SERVER_NAME'], 'tillit.ai') !== false) {
+    if (strpos($_SERVER['SERVER_NAME'], 'two.inc') !== false) {
       $data['two_host'] = true;
     }
 
@@ -370,7 +370,7 @@ class ControllerExtensionPaymentTwo extends Controller {
         'payment_two_staging_server'
       );
     } else {
-      $data['payment_two_staging_server'] = 'https://staging.two.ai';
+      $data['payment_two_staging_server'] = 'https://staging.api.two.ai';
     }
 
     $data['header'] = $this->load->controller('common/header');
@@ -403,7 +403,7 @@ class ControllerExtensionPaymentTwo extends Controller {
       $this->request->get['order_id']
     );
 
-    $this->response->setOutput($this->load->view('sale/order_two', $data));
+    $this->response->setOutput($this->load->view('extension/payment/two_order', $data));
   }
 
   public function updateOrder()
@@ -1247,7 +1247,7 @@ class ControllerExtensionPaymentTwo extends Controller {
       $base_url = 'https://test.api.tillit.ai';
     }
 
-    if (strpos($_SERVER['SERVER_NAME'], 'tillit.ai') !== false) {
+    if (strpos($_SERVER['SERVER_NAME'], 'two.inc') !== false || strpos($_SERVER['SEVER_NAME'], '.local') !==false) {
       $base_url = $this->config->get('payment_two_staging_server');
     }
 

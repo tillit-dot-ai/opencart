@@ -8,7 +8,7 @@ For a more detailed info, refer to this page
 
 ## How To Install Extension
 1. Download as a zip from git
-2. Rename it to `tillit_payment_gateway.ocmod.zip`
+2. Rename it to `two_oc3.ocmod.zip`
 3. Go to opencart admin -> extension installer -> upload
 
 ### For a more detailed guide, refer to this page
