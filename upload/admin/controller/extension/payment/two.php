@@ -49,7 +49,7 @@ class ControllerExtensionPaymentTwo extends Controller {
   }
 
   public function uninstall() {
-    $this->db->query('DROP TA BLE `' . DB_PREFIX . 'two_order`');
+    $this->db->query('DROP TABLE `' . DB_PREFIX . 'two_order`');
   }
 
   public function index() {
