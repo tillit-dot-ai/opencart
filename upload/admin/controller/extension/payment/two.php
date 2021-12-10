@@ -493,11 +493,12 @@ class ControllerExtensionPaymentTwo extends Controller {
         $order_status_id ==
         $this->config->get('payment_two_shipped_status_id')
       ) {
-        $response = $this->setTwoPaymentRequest(
-          '/v1/order/' . $two_order_info['id'] . '/fulfilled',
-          [],
-          'POST'
-        );
+        if($this->config->get('config_country_id') == 160){
+          $response = $this->setTwoPaymentRequest('/v1/order/' . $two_order_info['id'] . '/fulfilled?lang=nb_NO',[],'POST',true);
+        } else {
+          $response = $this->setTwoPaymentRequest('/v1/order/' . $two_order_info['id'] . '/fulfilled?lang=en_US',[],'POST',true);
+        }
+        
         if (!isset($response)) {
           $json['error'] = sprintf(
             $this->language->get('text_response_error'),
@@ -836,11 +837,12 @@ class ControllerExtensionPaymentTwo extends Controller {
           'line_items' => $items,
         ];
 
-        $response = $this->setTwoPaymentRequest(
-          '/v1/order/' . $two_order_info['id'] . '/refund',
-          $request_data,
-          'POST'
-        );
+        if($this->config->get('config_country_id') == 160){
+          $response = $this->setTwoPaymentRequest('/v1/order/' . $two_order_info['id'] . '/refund?lang=nb_NO',[],'POST',true);
+        } else {
+          $response = $this->setTwoPaymentRequest('/v1/order/' . $two_order_info['id'] . '/refund?lang=en_US',[],'POST',true);
+        }
+
         //echo "<pre>";print_r($response);die;
 
         if (!isset($response)) {
@@ -1239,7 +1241,8 @@ class ControllerExtensionPaymentTwo extends Controller {
   public function setTwoPaymentRequest(
     $endpoint,
     $payload = [],
-    $method = 'POST'
+    $method = 'POST',
+    $lang = false
   ) {
     if ($this->config->get('payment_two_mode')) {
       $base_url = 'https://api.tillit.ai';
@@ -1253,7 +1256,11 @@ class ControllerExtensionPaymentTwo extends Controller {
 
     if ($method == 'POST' || $method == 'PUT') {
       $url = $base_url . $endpoint;
-      $url = $url . '?client=OC&client_v=1.1.1';
+      if($lang){
+        $url = $url . '&client=OC&client_v=1.1.1';
+      } else {
+        $url = $url . '?client=OC&client_v=1.1.1';
+      }
       $params = empty($payload) ? '' : json_encode($payload);
       $headers = [
         'Content-Type: application/json; charset=utf-8',
