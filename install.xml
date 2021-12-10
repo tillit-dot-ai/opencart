@@ -2,7 +2,7 @@
 <modification>
   <name>Two Payment Gateway API</name>
   <code>two_default</code>
-  <version>1.1.1</version>
+  <version>1.1.2</version>
   <author>Two</author>
   <link>https://two.inc</link>
   <file path="system/library/cart/customer.php">

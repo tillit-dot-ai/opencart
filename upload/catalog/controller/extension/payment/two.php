@@ -444,7 +444,7 @@ class ControllerExtensionPaymentTwo extends Controller {
 
     if ($method == "POST" || $method == "PUT") {
       $url = $base_url.$endpoint;
-      $url = $url . '?client=OC&client_v=1.1.1';
+      $url = $url . '?client=OC&client_v=1.1.2';
       $params = empty($payload) ? '' : json_encode($payload);
       $headers = [
         'Content-Type: application/json; charset=utf-8',
@@ -469,7 +469,7 @@ class ControllerExtensionPaymentTwo extends Controller {
       curl_close($ch);
     } else {
       $url = $base_url.$endpoint;
-      $url = $url . '?client=OC&client_v=1.1.1';
+      $url = $url . '?client=OC&client_v=1.1.2';
       $headers = [
         'Content-Type: application/json; charset=utf-8',
         'X-API-Key:' . $this->config->get('payment_two_api_key'),
