@@ -1,6 +1,7 @@
 <?php
 class ControllerExtensionPaymentTwo extends Controller {
   private $error = [];
+  private $version = '1.1.2';
   public function install() {
     $this->db->query(
       'CREATE TABLE IF NOT EXISTS `' .
@@ -1257,9 +1258,9 @@ class ControllerExtensionPaymentTwo extends Controller {
     if ($method == 'POST' || $method == 'PUT') {
       $url = $base_url . $endpoint;
       if($lang){
-        $url = $url . '&client=OC&client_v=1.1.2';
+        $url = $url . '&client=OC&client_v='.$this->version;
       } else {
-        $url = $url . '?client=OC&client_v=1.1.2';
+        $url = $url . '?client=OC&client_v='.$this->version;
       }
       $params = empty($payload) ? '' : json_encode($payload);
       $headers = [
@@ -1285,7 +1286,7 @@ class ControllerExtensionPaymentTwo extends Controller {
       curl_close($ch);
     } else {
       $url = $base_url . $endpoint;
-      $url = $url . '?client=OC&client_v=1.1.2';
+      $url = $url . '?client=OC&client_v='.$this->version;
       $headers = [
         'Content-Type: application/json; charset=utf-8',
         'X-API-Key:' . $this->config->get('payment_two_api_key'),
