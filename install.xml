@@ -2,7 +2,7 @@
 <modification>
   <name>Two Payment Gateway API</name>
   <code>two_default</code>
-  <version>1.1.1</version>
+  <version>1.1.2</version>
   <author>Two</author>
   <link>https://two.inc</link>
   <file path="system/library/cart/customer.php">
@@ -64,7 +64,7 @@
           } else {
             $data['account_type'] = 'business';
           }
-
+          $data['config_country'] = $this->config->get('config_country_id');
           $this->language->load('account/register');
         }
     ]]>
@@ -111,15 +111,24 @@
         <script src="https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/17.0.8/js/intlTelInput.min.js"></script>
         <script type="text/javascript">
         $(document).ready(function() {
-            var billingPhoneInput;
-            let billingPhoneInputField = document.querySelector("#input-telephone");
+          var config_country = '{{ config_country }}';
+          var billingPhoneInput;
+          let billingPhoneInputField = document.querySelector("#input-telephone");
+          if(config_country == 160 || config_country == '160'){
             billingPhoneInput = window.intlTelInput(billingPhoneInputField, {
               preferredCountries: ["no", "gb"],
               utilsScript: "https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/17.0.8/js/utils.js"
-            })
-            if ($('#input-payment-telephone')) {
-                billingPhoneInput.setNumber($('#input-telephone').val());
-            }
+            });
+          } else {
+            billingPhoneInput = window.intlTelInput(billingPhoneInputField, {
+              preferredCountries: ["gb", "no"],
+              utilsScript: "https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/17.0.8/js/utils.js"
+            });
+          }
+          
+          if ($('#input-payment-telephone')) {
+              billingPhoneInput.setNumber($('#input-telephone').val());
+          }
         });
         </script>
         <style type="text/css">
@@ -148,7 +157,7 @@
         } else {
           $data['account_type'] = 'business';
         }
-
+        $data['config_country'] = $this->config->get('config_country_id');
         $this->language->load('account/edit');
       }
     ]]>
@@ -195,15 +204,23 @@
         <script src="https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/17.0.8/js/intlTelInput.min.js"></script>
         <script type="text/javascript">
         $(document).ready(function() {
-            var billingPhoneInput;
-            let billingPhoneInputField = document.querySelector("#input-telephone");
+          var config_country = '{{ config_country }}';
+          var billingPhoneInput;
+          let billingPhoneInputField = document.querySelector("#input-telephone");
+          if(config_country == 160 || config_country == '160'){
             billingPhoneInput = window.intlTelInput(billingPhoneInputField, {
               preferredCountries: ["no", "gb"],
               utilsScript: "https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/17.0.8/js/utils.js"
-            })
-            if ($('#input-payment-telephone')) {
-                billingPhoneInput.setNumber($('#input-telephone').val());
-            }
+            });
+          } else {
+            billingPhoneInput = window.intlTelInput(billingPhoneInputField, {
+              preferredCountries: ["gb", "no"],
+              utilsScript: "https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/17.0.8/js/utils.js"
+            });
+          }
+          if ($('#input-payment-telephone')) {
+              billingPhoneInput.setNumber($('#input-telephone').val());
+          }
         });
         </script>
         <style type="text/css">
@@ -778,6 +795,7 @@
       $('input[name=\'account_type\']').change();
     });
     $('#input-payment-country').on('change', function() {
+      countryTel();
       let united_kingdom_id = 222;
       let norway = 160;
       if(united_kingdom_id == $(this).val() || norway == $(this).val()) {
@@ -961,6 +979,7 @@
       $('input[name=\'account_type\']').change();
     });
     $('#input-payment-country').on('change', function() {
+      countryTel();
       let united_kingdom_id = 222;
       let norway = 160;
       if(united_kingdom_id == $(this).val() || norway == $(this).val()) {
@@ -1065,15 +1084,23 @@
         <script src="https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/17.0.8/js/intlTelInput.min.js"></script>
         <script type="text/javascript">
         function countryTel() {
-            var billingPhoneInput;
-            let billingPhoneInputField = document.querySelector("#input-payment-telephone");
+          var config_country = $('#input-payment-country').val();
+          var billingPhoneInput;
+          let billingPhoneInputField = document.querySelector("#input-payment-telephone");
+          if(config_country == 160 || config_country == '160'){
             billingPhoneInput = window.intlTelInput(billingPhoneInputField, {
               preferredCountries: ["no", "gb"],
               utilsScript: "https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/17.0.8/js/utils.js"
-            })
-            if ($('#input-payment-telephone')) {
-                billingPhoneInput.setNumber($('#input-payment-telephone').val());
-            }
+            });
+          } else {
+            billingPhoneInput = window.intlTelInput(billingPhoneInputField, {
+              preferredCountries: ["gb", "no"],
+              utilsScript: "https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/17.0.8/js/utils.js"
+            });
+          }
+          if ($('#input-payment-telephone')) {
+              billingPhoneInput.setNumber($('#input-payment-telephone').val());
+          }
         }
         </script>
         <style type="text/css">

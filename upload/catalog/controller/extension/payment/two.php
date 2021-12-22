@@ -1,6 +1,6 @@
 <?php
 class ControllerExtensionPaymentTwo extends Controller { 
-
+  private $version = '1.1.2';
   public function index() {
     $this->load->model('checkout/order');
 
@@ -39,7 +39,7 @@ class ControllerExtensionPaymentTwo extends Controller {
     }
 
     $data['action'] = $this->url->link('extension/payment/two/send', '', true);
-	
+  
     return $this->load->view('extension/payment/two', $data);
   }
 
@@ -214,6 +214,9 @@ class ControllerExtensionPaymentTwo extends Controller {
     $this->load->model('localisation/country');
     $payment_country_info = $this->model_localisation_country->getCountry($order_info['payment_country_id']);
     $shipping_country_info = $this->model_localisation_country->getCountry($order_info['shipping_country_id']);
+    if(!$shipping_country_info){
+      $shipping_country_info = $payment_country_info;
+    }
 
     $company_id = '';
     if(isset($this->session->data['payment_address']['company_id']) && $this->session->data['payment_address']['company_id']){
@@ -437,14 +440,14 @@ class ControllerExtensionPaymentTwo extends Controller {
     } else {
       $base_url = 'https://test.api.tillit.ai';
     }
-
-    if (strpos($_SERVER['SERVER_NAME'], 'two.inc') !== false || strpos($_SERVER['SEVER_NAME'], '.local') !==false) {
+    
+    if (strpos($_SERVER['SERVER_NAME'], 'two.inc') !== false || strpos($_SERVER['SERVER_NAME'], '.local') !==false) {
       $base_url = $this->config->get('payment_two_staging_server');
     }
 
     if ($method == "POST" || $method == "PUT") {
       $url = $base_url.$endpoint;
-      $url = $url . '?client=OC&client_v=1.1.1';
+      $url = $url . '?client=OC&client_v='.$this->version;
       $params = empty($payload) ? '' : json_encode($payload);
       $headers = [
         'Content-Type: application/json; charset=utf-8',
@@ -469,7 +472,7 @@ class ControllerExtensionPaymentTwo extends Controller {
       curl_close($ch);
     } else {
       $url = $base_url.$endpoint;
-      $url = $url . '?client=OC&client_v=1.1.1';
+      $url = $url . '?client=OC&client_v='.$this->version;
       $headers = [
         'Content-Type: application/json; charset=utf-8',
         'X-API-Key:' . $this->config->get('payment_two_api_key'),
@@ -528,10 +531,10 @@ class ControllerExtensionPaymentTwo extends Controller {
     }
   }
 
-  public function confirm() {		
-		if (isset($this->request->get['order_id'])) {
+  public function confirm() {   
+    if (isset($this->request->get['order_id'])) {
       $order_id = $this->request->get['order_id'];
-    } elseif(isset($this->session->data['order_id'])) {
+    } elseif (isset($this->session->data['order_id'])) {
       $order_id = $this->session->data['order_id'];
     } else {
       $order_id = 0 ;
@@ -586,7 +589,29 @@ class ControllerExtensionPaymentTwo extends Controller {
     } else {
       $this->session->data['error'] = 'Unable to find the requested order, please contact store owner.';
     }
-	}
+  }
+
+  public function cancel() {
+    if (isset($this->request->get['order_id'])) {
+      $order_id = $this->request->get['order_id'];
+    } elseif(isset($this->session->data['order_id'])) {
+      $order_id = $this->session->data['order_id'];
+    } else {
+      $order_id = 0 ;
+    }
+  
+    $this->load->model('checkout/order');
+    $order_info = $this->model_checkout_order->getOrder($order_id);
+
+    if($order_info){
+      $this->model_checkout_order->addOrderHistory($order_id, $this->config->get('payment_two_canceled_status_id'));
+    } else {
+      $this->session->data['error'] = 'Unable to find the requested order, please contact store owner.';
+    }
+
+    $this->response->redirect($this->url->link('checkout/checkout'));
+
+  }
 
   public function company() {
 
@@ -676,7 +701,7 @@ class ControllerExtensionPaymentTwo extends Controller {
         $base_url = 'https://test.api.tillit.ai';
       }
 
-      if (strpos($_SERVER['SERVER_NAME'], 'two.inc') !== false || strpos($_SERVER['SEVER_NAME'], '.local') !==false) {
+      if (strpos($_SERVER['SERVER_NAME'], 'two.inc') !== false || strpos($_SERVER['SERVER_NAME'], '.local') !==false) {
         $base_url = $this->config->get('payment_two_staging_server');
       }
       

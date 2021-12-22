@@ -1,6 +1,7 @@
 <?php
 class ControllerExtensionPaymentTwo extends Controller {
   private $error = [];
+  private $version = '1.1.2';
   public function install() {
     $this->db->query(
       'CREATE TABLE IF NOT EXISTS `' .
@@ -493,11 +494,12 @@ class ControllerExtensionPaymentTwo extends Controller {
         $order_status_id ==
         $this->config->get('payment_two_shipped_status_id')
       ) {
-        $response = $this->setTwoPaymentRequest(
-          '/v1/order/' . $two_order_info['id'] . '/fulfilled',
-          [],
-          'POST'
-        );
+        if($this->config->get('config_country_id') == 160){
+          $response = $this->setTwoPaymentRequest('/v1/order/' . $two_order_info['id'] . '/fulfilled?lang=nb_NO',[],'POST',true);
+        } else {
+          $response = $this->setTwoPaymentRequest('/v1/order/' . $two_order_info['id'] . '/fulfilled?lang=en_US',[],'POST',true);
+        }
+        
         if (!isset($response)) {
           $json['error'] = sprintf(
             $this->language->get('text_response_error'),
@@ -836,11 +838,11 @@ class ControllerExtensionPaymentTwo extends Controller {
           'line_items' => $items,
         ];
 
-        $response = $this->setTwoPaymentRequest(
-          '/v1/order/' . $two_order_info['id'] . '/refund',
-          $request_data,
-          'POST'
-        );
+        if($this->config->get('config_country_id') == 160){
+          $response = $this->setTwoPaymentRequest('/v1/order/' . $two_order_info['id'] . '/refund?lang=nb_NO',$request_data,'POST',true);
+        } else {
+          $response = $this->setTwoPaymentRequest('/v1/order/' . $two_order_info['id'] . '/refund?lang=en_US',$request_data,'POST',true);
+        }
 
         if (!isset($response)) {
           $json['error'] = sprintf(
@@ -1128,6 +1130,10 @@ class ControllerExtensionPaymentTwo extends Controller {
         $order_info['shipping_country_id']
       );
 
+      if(!$shipping_country_info){
+        $shipping_country_info = $payment_country_info;
+      }
+
       $request_data = [
         'gross_amount' => strval(
           $this->currency->format(
@@ -1238,7 +1244,8 @@ class ControllerExtensionPaymentTwo extends Controller {
   public function setTwoPaymentRequest(
     $endpoint,
     $payload = [],
-    $method = 'POST'
+    $method = 'POST',
+    $lang = false
   ) {
     if ($this->config->get('payment_two_mode')) {
       $base_url = 'https://api.tillit.ai';
@@ -1246,13 +1253,17 @@ class ControllerExtensionPaymentTwo extends Controller {
       $base_url = 'https://test.api.tillit.ai';
     }
 
-    if (strpos($_SERVER['SERVER_NAME'], 'two.inc') !== false || strpos($_SERVER['SEVER_NAME'], '.local') !==false) {
+    if (strpos($_SERVER['SERVER_NAME'], 'two.inc') !== false || strpos($_SERVER['SERVER_NAME'], '.local') !==false) {
       $base_url = $this->config->get('payment_two_staging_server');
     }
 
     if ($method == 'POST' || $method == 'PUT') {
       $url = $base_url . $endpoint;
-      $url = $url . '?client=OC&client_v=1.1.1';
+      if($lang){
+        $url = $url . '&client=OC&client_v='.$this->version;
+      } else {
+        $url = $url . '?client=OC&client_v='.$this->version;
+      }
       $params = empty($payload) ? '' : json_encode($payload);
       $headers = [
         'Content-Type: application/json; charset=utf-8',
@@ -1277,7 +1288,7 @@ class ControllerExtensionPaymentTwo extends Controller {
       curl_close($ch);
     } else {
       $url = $base_url . $endpoint;
-      $url = $url . '?client=OC&client_v=1.1.1';
+      $url = $url . '?client=OC&client_v='.$this->version;
       $headers = [
         'Content-Type: application/json; charset=utf-8',
         'X-API-Key:' . $this->config->get('payment_two_api_key'),
