@@ -841,7 +841,6 @@ class ControllerExtensionPaymentTwo extends Controller {
           $request_data,
           'POST'
         );
-        //echo "<pre>";print_r($response);die;
 
         if (!isset($response)) {
           $json['error'] = sprintf(
