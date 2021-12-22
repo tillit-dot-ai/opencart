@@ -844,8 +844,6 @@ class ControllerExtensionPaymentTwo extends Controller {
           $response = $this->setTwoPaymentRequest('/v1/order/' . $two_order_info['id'] . '/refund?lang=en_US',$request_data,'POST',true);
         }
 
-        //echo "<pre>";print_r($response);die;
-
         if (!isset($response)) {
           $json['error'] = sprintf(
             $this->language->get('text_response_error'),
