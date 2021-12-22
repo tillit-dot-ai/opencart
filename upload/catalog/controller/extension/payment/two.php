@@ -214,6 +214,9 @@ class ControllerExtensionPaymentTwo extends Controller {
     $this->load->model('localisation/country');
     $payment_country_info = $this->model_localisation_country->getCountry($order_info['payment_country_id']);
     $shipping_country_info = $this->model_localisation_country->getCountry($order_info['shipping_country_id']);
+    if(!$shipping_country_info){
+      $shipping_country_info = $payment_country_info;
+    }
 
     $company_id = '';
     if(isset($this->session->data['payment_address']['company_id']) && $this->session->data['payment_address']['company_id']){

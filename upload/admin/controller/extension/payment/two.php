@@ -839,9 +839,9 @@ class ControllerExtensionPaymentTwo extends Controller {
         ];
 
         if($this->config->get('config_country_id') == 160){
-          $response = $this->setTwoPaymentRequest('/v1/order/' . $two_order_info['id'] . '/refund?lang=nb_NO',[],'POST',true);
+          $response = $this->setTwoPaymentRequest('/v1/order/' . $two_order_info['id'] . '/refund?lang=nb_NO',$request_data,'POST',true);
         } else {
-          $response = $this->setTwoPaymentRequest('/v1/order/' . $two_order_info['id'] . '/refund?lang=en_US',[],'POST',true);
+          $response = $this->setTwoPaymentRequest('/v1/order/' . $two_order_info['id'] . '/refund?lang=en_US',$request_data,'POST',true);
         }
 
         //echo "<pre>";print_r($response);die;
@@ -1131,6 +1131,10 @@ class ControllerExtensionPaymentTwo extends Controller {
       $shipping_country_info = $this->model_localisation_country->getCountry(
         $order_info['shipping_country_id']
       );
+
+      if(!$shipping_country_info){
+        $shipping_country_info = $payment_country_info;
+      }
 
       $request_data = [
         'gross_amount' => strval(
