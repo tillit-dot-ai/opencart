@@ -1,7 +1,7 @@
 <?php
 class ControllerExtensionPaymentTwo extends Controller {
   private $error = [];
-  private $version = '1.1.2';
+  private $version = '1.1.3';
   public function install() {
     $this->db->query(
       'CREATE TABLE IF NOT EXISTS `' .
