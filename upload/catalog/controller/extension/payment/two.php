@@ -1,6 +1,6 @@
 <?php
 class ControllerExtensionPaymentTwo extends Controller { 
-  private $version = '1.1.2';
+  private $version = '1.1.3';
   public function index() {
     $this->load->model('checkout/order');
 
@@ -534,7 +534,7 @@ class ControllerExtensionPaymentTwo extends Controller {
   public function confirm() {   
     if (isset($this->request->get['order_id'])) {
       $order_id = $this->request->get['order_id'];
-    } elseif (isset($this->session->data['order_id'])) {
+    } elseif(isset($this->session->data['order_id'])) {
       $order_id = $this->session->data['order_id'];
     } else {
       $order_id = 0 ;
@@ -591,7 +591,7 @@ class ControllerExtensionPaymentTwo extends Controller {
     }
   }
 
-  public function cancel() {
+  public function cancel() {   
     if (isset($this->request->get['order_id'])) {
       $order_id = $this->request->get['order_id'];
     } elseif(isset($this->session->data['order_id'])) {

@@ -65,6 +65,7 @@ $_['entry_staging_server']			 = 'Two Test Server';
 $_['tab_general']					 = 'General';
 $_['tab_other']       		 		 = 'Other';
 $_['tab_order_status']       		 = 'Order Status';
+$_['tab_information']       		 = 'Information';
 
 // Help
 
