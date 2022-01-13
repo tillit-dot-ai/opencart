@@ -262,6 +262,18 @@
   </file>
 
   <file path="catalog/controller/account/address.php">
+    <operation error="log">
+      <search>
+        <![CDATA[$this->load->language('account/address');]]>
+      </search>
+      <add position="after">
+        <![CDATA[
+      if($this->config->get('payment_two_status')){
+        $this->load->language('extension/payment/two');
+      }
+    ]]>
+      </add>
+    </operation>
     
     <operation error="log">
       <search>
@@ -293,7 +305,7 @@
       </search>
       <add position="before">
         <![CDATA[
-         if (isset($this->error['company'])) {
+        if (isset($this->error['company'])) {
           $data['error_company'] = $this->error['company'];
         } else {
           $data['error_company'] = '';
@@ -304,15 +316,53 @@
     <operation error="log">
       <search>
         <![CDATA[$country_info = $this->model_localisation_country->getCountry($this->request->post['country_id']);]]>
-      </search>
-      <add position="before">
+      </search><add position="before">
         <![CDATA[
-         if($this->config->get('payment_two_status') && $this->customer->getAccountType() == 'business'){
+
+      if($this->config->get('payment_two_status')) {
+        if ((utf8_strlen(trim($this->request->post['firstname'])) < 1)) {
+          $this->error['firstname'] = $this->language->get('error_firstname_e');
+        }
+
+        if ((utf8_strlen(trim($this->request->post['lastname'])) < 1)) {
+          $this->error['lastname'] = $this->language->get('error_lastname_e');
+        }
+
+        if ((utf8_strlen($this->request->post['email']) < 1)) {
+          $this->error['email'] = $this->language->get('error_email_e');
+        }
+
+        if ((utf8_strlen($this->request->post['telephone']) < 1)) {
+          $this->error['telephone'] = $this->language->get('error_telephone_e');
+        }
+
+        if ((utf8_strlen($this->request->post['telephone']) < 8) || (utf8_strlen($this->request->post['telephone']) > 15)) {
+          $this->error['telephone'] = $this->language->get('error_telephone');
+        }
+
+        if ((utf8_strlen(trim($this->request->post['address_1'])) < 1)) {
+          $this->error['address_1'] = $this->language->get('error_address_e');
+        }
+
+        if ((utf8_strlen(trim($this->request->post['city'])) < 1)) {
+          $this->error['city'] = $this->language->get('error_city_e');
+        }
+
+        if ((utf8_strlen(trim($this->request->post['postcode'])) < 4) || (utf8_strlen(trim($this->request->post['postcode'])) > 9)) {
+          $this->error['postcode'] = $this->language->get('error_postcode');
+        }
+
+        if ((utf8_strlen(trim($this->request->post['postcode'])) < 1)) {
+          $this->error['postcode'] = $this->language->get('error_postcode_e');
+        }
+
+        if($this->customer->getAccountType() == 'business'){
           if ($this->request->post['company_id'] == '' && in_array($this->request->post['country_id'], array(222,160))) {
-            $this->error['company'] = 'Please select company from suggested list.';
+            $this->error['company'] = $this->language->get('error_organization_number_e');
           }
         }
-        ]]>
+      }
+    ]]>
       </add>
     </operation>
   </file>
@@ -433,6 +483,18 @@
   <file path="catalog/controller/checkout/checkout.php">
     <operation error="log">
       <search>
+        <![CDATA[$this->load->language('checkout/checkout');]]>
+      </search>
+      <add position="after">
+        <![CDATA[
+      if($this->config->get('payment_two_status')){
+        $this->load->language('extension/payment/two');
+      }
+    ]]>
+      </add>
+    </operation>
+    <operation error="log">
+      <search>
         <![CDATA[$this->load->model('localisation/zone');]]>
       </search>
       <add position="after">
@@ -460,15 +522,66 @@
   <file path="catalog/controller/checkout/payment_address.php">
     <operation error="log">
       <search>
+        <![CDATA[$this->load->language('checkout/checkout');]]>
+      </search>
+      <add position="after">
+        <![CDATA[
+      if($this->config->get('payment_two_status')){
+        $this->load->language('extension/payment/two');
+      }
+    ]]>
+      </add>
+    </operation>
+    <operation error="log">
+      <search>
         <![CDATA[if ($this->request->post['country_id'] == '') {]]>
       </search>
       <add position="before">
         <![CDATA[
-    if($this->config->get('payment_two_status') && $this->customer->getAccountType() == 'business'){
-      if ($this->request->post['company_id'] == '' && in_array($this->request->post['country_id'], array(222,160))) {
-        $json['error']['company'] = 'Please select company from suggested list.';
+
+      if($this->config->get('payment_two_status')) {
+        if ((utf8_strlen(trim($this->request->post['firstname'])) < 1)) {
+          $json['error']['firstname'] = $this->language->get('error_firstname_e');
+        }
+
+        if ((utf8_strlen(trim($this->request->post['lastname'])) < 1)) {
+          $json['error']['lastname'] = $this->language->get('error_lastname_e');
+        }
+
+        if ((utf8_strlen($this->request->post['email']) < 1)) {
+          $json['error']['email'] = $this->language->get('error_email_e');
+        }
+
+        if ((utf8_strlen($this->request->post['telephone']) < 1)) {
+          $json['error']['telephone'] = $this->language->get('error_telephone_e');
+        }
+
+        if ((utf8_strlen($this->request->post['telephone']) < 8) || (utf8_strlen($this->request->post['telephone']) > 15)) {
+          $json['error']['telephone'] = $this->language->get('error_telephone');
+        }
+
+        if ((utf8_strlen(trim($this->request->post['address_1'])) < 1)) {
+          $json['error']['address_1'] = $this->language->get('error_address_e');
+        }
+
+        if ((utf8_strlen(trim($this->request->post['city'])) < 1)) {
+          $json['error']['city'] = $this->language->get('error_city_e');
+        }
+
+        if ((utf8_strlen(trim($this->request->post['postcode'])) < 4) || (utf8_strlen(trim($this->request->post['postcode'])) > 9)) {
+          $json['error']['postcode'] = $this->language->get('error_postcode');
+        }
+
+        if ((utf8_strlen(trim($this->request->post['postcode'])) < 1)) {
+          $json['error']['postcode'] = $this->language->get('error_postcode_e');
+        }
+
+        if($this->customer->getAccountType() == 'business'){
+          if ($this->request->post['company_id'] == '' && in_array($this->request->post['country_id'], array(222,160))) {
+            $json['error']['company'] = $this->language->get('error_organization_number_e');
+          }
+        }
       }
-    }
     ]]>
       </add>
     </operation>
@@ -572,15 +685,66 @@
     </operation>
   </file>
   <file path="catalog/controller/checkout/shipping_address.php">
-  <operation error="log">
+    <operation error="log">
+      <search>
+        <![CDATA[$this->load->language('checkout/checkout');]]>
+      </search>
+      <add position="after">
+        <![CDATA[
+      if($this->config->get('payment_two_status')){
+        $this->load->language('extension/payment/two');
+      }
+    ]]>
+      </add>
+    </operation>
+    <operation error="log">
       <search>
         <![CDATA[if ($this->request->post['country_id'] == '') {]]>
       </search>
       <add position="before">
         <![CDATA[
-      if($this->config->get('payment_two_status') && $this->customer->getAccountType() == 'business'){
-        if ($this->request->post['company_id'] == '' && in_array($this->request->post['country_id'], array(222,160))) {
-          $json['error']['company'] = 'Please select company from suggested list.';
+
+      if($this->config->get('payment_two_status')) {
+        if ((utf8_strlen(trim($this->request->post['firstname'])) < 1)) {
+          $json['error']['firstname'] = $this->language->get('error_firstname_e');
+        }
+
+        if ((utf8_strlen(trim($this->request->post['lastname'])) < 1)) {
+          $json['error']['lastname'] = $this->language->get('error_lastname_e');
+        }
+
+        if ((utf8_strlen($this->request->post['email']) < 1)) {
+          $json['error']['email'] = $this->language->get('error_email_e');
+        }
+
+        if ((utf8_strlen($this->request->post['telephone']) < 1)) {
+          $json['error']['telephone'] = $this->language->get('error_telephone_e');
+        }
+
+        if ((utf8_strlen($this->request->post['telephone']) < 8) || (utf8_strlen($this->request->post['telephone']) > 15)) {
+          $json['error']['telephone'] = $this->language->get('error_telephone');
+        }
+
+        if ((utf8_strlen(trim($this->request->post['address_1'])) < 1)) {
+          $json['error']['address_1'] = $this->language->get('error_address_e');
+        }
+
+        if ((utf8_strlen(trim($this->request->post['city'])) < 1)) {
+          $json['error']['city'] = $this->language->get('error_city_e');
+        }
+
+        if ((utf8_strlen(trim($this->request->post['postcode'])) < 4) || (utf8_strlen(trim($this->request->post['postcode'])) > 9)) {
+          $json['error']['postcode'] = $this->language->get('error_postcode');
+        }
+
+        if ((utf8_strlen(trim($this->request->post['postcode'])) < 1)) {
+          $json['error']['postcode'] = $this->language->get('error_postcode_e');
+        }
+
+        if($this->customer->getAccountType() == 'business'){
+          if ($this->request->post['company_id'] == '' && in_array($this->request->post['country_id'], array(222,160))) {
+            $json['error']['company'] = $this->language->get('error_organization_number_e');
+          }
         }
       }
     ]]>
@@ -690,6 +854,18 @@
   <file path="catalog/controller/checkout/guest.php">
     <operation error="log">
       <search>
+        <![CDATA[$this->load->language('checkout/checkout');]]>
+      </search>
+      <add position="after">
+        <![CDATA[
+      if($this->config->get('payment_two_status')){
+        $this->load->language('extension/payment/two');
+      }
+    ]]>
+      </add>
+    </operation>
+    <operation error="log">
+      <search>
         <![CDATA[$this->response->setOutput($this->load->view('checkout/guest', $data));]]>
       </search>
       <add position="before">
@@ -721,9 +897,48 @@
       </search>
       <add position="before">
         <![CDATA[
-      if($this->config->get('payment_two_status') && $this->request->post['account_type'] == 'business'){
-        if ($this->request->post['company_id'] == '' && in_array($this->request->post['country_id'], array(222,160))) {
-          $json['error']['company'] = 'Please select company from suggested list.';
+
+      if($this->config->get('payment_two_status')) {
+        if ((utf8_strlen(trim($this->request->post['firstname'])) < 1)) {
+          $json['error']['firstname'] = $this->language->get('error_firstname_e');
+        }
+
+        if ((utf8_strlen(trim($this->request->post['lastname'])) < 1)) {
+          $json['error']['lastname'] = $this->language->get('error_lastname_e');
+        }
+
+        if ((utf8_strlen($this->request->post['email']) < 1)) {
+          $json['error']['email'] = $this->language->get('error_email_e');
+        }
+
+        if ((utf8_strlen($this->request->post['telephone']) < 1)) {
+          $json['error']['telephone'] = $this->language->get('error_telephone_e');
+        }
+
+        if ((utf8_strlen($this->request->post['telephone']) < 8) || (utf8_strlen($this->request->post['telephone']) > 15)) {
+          $json['error']['telephone'] = $this->language->get('error_telephone');
+        }
+
+        if ((utf8_strlen(trim($this->request->post['address_1'])) < 1)) {
+          $json['error']['address_1'] = $this->language->get('error_address_e');
+        }
+
+        if ((utf8_strlen(trim($this->request->post['city'])) < 1)) {
+          $json['error']['city'] = $this->language->get('error_city_e');
+        }
+
+        if ((utf8_strlen(trim($this->request->post['postcode'])) < 4) || (utf8_strlen(trim($this->request->post['postcode'])) > 9)) {
+          $json['error']['postcode'] = $this->language->get('error_postcode');
+        }
+
+        if ((utf8_strlen(trim($this->request->post['postcode'])) < 1)) {
+          $json['error']['postcode'] = $this->language->get('error_postcode_e');
+        }
+
+        if($this->request->post['account_type'] == 'business'){
+          if ($this->request->post['company_id'] == '' && in_array($this->request->post['country_id'], array(222,160))) {
+            $json['error']['company'] = $this->language->get('error_organization_number_e');
+          }
         }
       }
     ]]>
@@ -885,31 +1100,27 @@
   <file path="catalog/controller/checkout/register.php">
     <operation error="log">
       <search>
+        <![CDATA[$this->load->language('checkout/checkout');]]>
+      </search>
+      <add position="after">
+        <![CDATA[
+        if($this->config->get('payment_two_status')){
+          $this->load->language('extension/payment/two');
+        }
+        ]]>
+      </add>
+    </operation>
+    <operation error="log">
+      <search>
         <![CDATA[$this->response->setOutput($this->load->view('checkout/register', $data));]]>
       </search>
       <add position="before">
         <![CDATA[
-      if($this->config->get('payment_two_status')){
-        $data['two_status'] = $this->config->get('payment_two_status');
-        $this->load->language('extension/payment/two');
-
-        $this->load->language('checkout/checkout');
-      }
-    ]]>
-      </add>
-    </operation>
-    <operation error="log">
-      <search>
-        <![CDATA[if ($this->request->post['country_id'] == '') {]]>
-      </search>
-      <add position="before">
-        <![CDATA[
-      if($this->config->get('payment_two_status') && $this->request->post['account_type'] == 'business'){
-        if ($this->request->post['company_id'] == '' && in_array($this->request->post['country_id'], array(222,160))) {
-          $json['error']['company'] = 'Please select company from suggested list.';
+        $data['two_status'] = false;
+        if($this->config->get('payment_two_status')){
+          $data['two_status'] = $this->config->get('payment_two_status');
         }
-      }
-    ]]>
+      ]]>
       </add>
     </operation>
     <operation error="log">
@@ -918,9 +1129,47 @@
       </search>
       <add position="before">
         <![CDATA[
-      if($this->config->get('payment_two_status') && $this->request->post['account_type'] == 'business'){
-        if ($this->request->post['company_id'] == '' && in_array($this->request->post['country_id'], array(222,160))) {
-          $json['error']['company'] = 'Please select company from suggested list.';
+      if($this->config->get('payment_two_status')) {
+        if ((utf8_strlen(trim($this->request->post['firstname'])) < 1)) {
+          $json['error']['firstname'] = $this->language->get('error_firstname_e');
+        }
+
+        if ((utf8_strlen(trim($this->request->post['lastname'])) < 1)) {
+          $json['error']['lastname'] = $this->language->get('error_lastname_e');
+        }
+
+        if ((utf8_strlen($this->request->post['email']) < 1)) {
+          $json['error']['email'] = $this->language->get('error_email_e');
+        }
+
+        if ((utf8_strlen($this->request->post['telephone']) < 1)) {
+          $json['error']['telephone'] = $this->language->get('error_telephone_e');
+        }
+
+        if ((utf8_strlen($this->request->post['telephone']) < 8) || (utf8_strlen($this->request->post['telephone']) > 15)) {
+          $json['error']['telephone'] = $this->language->get('error_telephone');
+        }
+
+        if ((utf8_strlen(trim($this->request->post['address_1'])) < 1)) {
+          $json['error']['address_1'] = $this->language->get('error_address_e');
+        }
+
+        if ((utf8_strlen(trim($this->request->post['city'])) < 1)) {
+          $json['error']['city'] = $this->language->get('error_city_e');
+        }
+
+        if ((utf8_strlen(trim($this->request->post['postcode'])) < 4) || (utf8_strlen(trim($this->request->post['postcode'])) > 9)) {
+          $json['error']['postcode'] = $this->language->get('error_postcode');
+        }
+
+        if ((utf8_strlen(trim($this->request->post['postcode'])) < 1)) {
+          $json['error']['postcode'] = $this->language->get('error_postcode_e');
+        }
+
+        if($this->request->post['account_type'] == 'business'){
+          if ($this->request->post['company_id'] == '' && in_array($this->request->post['country_id'], array(222,160))) {
+            $json['error']['company'] = $this->language->get('error_organization_number_e');
+          }
         }
       }
     ]]>
